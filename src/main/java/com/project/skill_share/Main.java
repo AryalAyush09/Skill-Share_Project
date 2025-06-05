@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Main {
 	
-	@GetMapping("/")
+	@GetMapping("/api/protected")
 	public String test() {
-		return "Hello world!";
+		return "you have protected resource";
 	}
 }
