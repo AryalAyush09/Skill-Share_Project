@@ -29,7 +29,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())  // CSRF disable gareko (API use gareko bhaye)
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config add gareko
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/login", "/api/register","/api/**")
+                .requestMatchers("/api/login", 
+                		"/api/register",
+                		"/api/**",
+                		  "/v3/api-docs/**",
+                          "/swagger-ui/**",
+                          "/swagger-ui.html")
                 .permitAll()  
                 .anyRequest().authenticated()  // arko sab endpoint ma authentication mandatory
             )

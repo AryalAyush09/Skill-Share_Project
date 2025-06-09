@@ -8,7 +8,7 @@ import com.project.skill_share.response.GenericResponse;
 
 	@ControllerAdvice
 	
-	public class GlobalExecption {
+	public class GlobalExceptionHandler {
 
 	    //  Common validation/duplicate/etc.
 //	    @ExceptionHandler(IllegalArgumentException.class)
