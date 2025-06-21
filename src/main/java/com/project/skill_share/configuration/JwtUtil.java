@@ -18,9 +18,8 @@ public class JwtUtil {
 //	private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
 
 	 public JwtUtil(@Value("${jwt.secret}") String secret) {
-		   System.out.println("JWT Secret: " + secret);
+//		   System.out.println("JWT Secret: " + secret);
 	        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-	    
 	    }
 	 
     // Token generate garne

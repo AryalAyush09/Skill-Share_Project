@@ -2,6 +2,8 @@ com\project\skill_share\services\UserSkillService.class
 com\project\skill_share\configuration\SecurityConfig.class
 com\project\skill_share\repository\SkillRepository.class
 com\project\skill_share\entities\LoginForm.class
+com\project\skill_share\enums\SkillType.class
+com\project\skill_share\entities\OtpToken.class
 com\project\skill_share\repository\UserSkillRepository.class
 com\project\skill_share\services\CategoryServiceImpl.class
 com\project\skill_share\services\CategoryService.class
@@ -12,8 +14,11 @@ com\project\skill_share\DTO\SkillReqSelection.class
 com\project\skill_share\repository\CategoryRepository.class
 com\project\skill_share\GlobalErrorHandler\AlreadyExistsException.class
 com\project\skill_share\entities\User_Skill.class
+com\project\skill_share\repository\OtpRepository.class
+com\project\skill_share\services\OtpService.class
 com\project\skill_share\configuration\JwtUtil.class
 com\project\skill_share\Main.class
+com\project\skill_share\OTPGenerate\OtpUtil.class
 com\project\skill_share\services\SkillService.class
 com\project\skill_share\services\AuthService.class
 com\project\skill_share\controller\Skillcontroller.class
@@ -21,12 +26,15 @@ com\project\skill_share\response\GenericResponse.class
 com\project\skill_share\controller\CategoryController.class
 com\project\skill_share\DTO\SkillReqDTO.class
 com\project\skill_share\DTO\CategorySkillDTO.class
+com\project\skill_share\enums\OtpPurpose.class
 com\project\skill_share\GlobalErrorHandler\ResourceNotFoundException.class
 com\project\skill_share\repository\UserRepository.class
 com\project\skill_share\SkillShareApplication.class
 com\project\skill_share\entities\User.class
+com\project\skill_share\enums\EmailTYPE.class
 com\project\skill_share\configuration\JwtFilter.class
-com\project\skill_share\entities\SkillType.class
+com\project\skill_share\GlobalErrorHandler\OtpRateLimitException.class
+com\project\skill_share\GlobalErrorHandler\EmailAlreadyVerifiedException.class
 com\project\skill_share\GlobalErrorHandler\GlobalExceptionHandler.class
 com\project\skill_share\entities\Skill.class
 com\project\skill_share\configuration\SwaggerConfig.class

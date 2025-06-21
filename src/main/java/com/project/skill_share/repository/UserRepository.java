@@ -14,7 +14,6 @@ import com.project.skill_share.entities.User;
 		boolean existsByEmail(String email);
 //		boolean existsByEmail(String email);
 //	Optional<User> findByUsernameAndPassword(String username, String password);
-		Optional<User> findByUsername(String username);
 		Optional<User> findByEmail(String email);
 		Optional<User> findById(Long id);
 	}

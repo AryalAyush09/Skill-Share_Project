@@ -2,6 +2,7 @@ package com.project.skill_share.entities;
 
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
+import com.project.skill_share.enums.SkillType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,25 +12,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "user-skill_table")
+@Table(name = "user_skill_table",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
+    })
+
 public class User_Skill {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
+  
     @ManyToOne
-    @JoinColumn(name = "category_id")
-	 private Category categoryName;
-    
-    @ManyToOne
-    @JoinColumn(name = "skill_id")
+    @JoinColumn(name = "skill_id", nullable = false)
 	 private Skill skillName;
     
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User userName;
 
     @Enumerated(EnumType.STRING)
@@ -47,14 +49,6 @@ public class User_Skill {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public Category getCategoryName() {
-		return categoryName;
-	}
-
-	public void setCategoryName(Category categoryName) {
-		this.categoryName = categoryName;
 	}
 
 	public Skill getSkillName() {

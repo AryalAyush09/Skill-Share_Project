@@ -1,6 +1,5 @@
 package com.project.skill_share.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,9 +14,12 @@ import com.project.skill_share.services.AuthService;
 @RequestMapping("/api")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
-
+    private final AuthService authService;
+    
+    public AuthController(AuthService authService) {
+    	this.authService = authService;
+    }
+    
     @PostMapping("/register")
     public ResponseEntity<GenericResponse> registerUser(@RequestBody User user) {
         return ResponseEntity.ok(authService.registerUser(user));
