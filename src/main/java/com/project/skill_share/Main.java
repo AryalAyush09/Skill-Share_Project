@@ -8,6 +8,6 @@ public class Main {
 	
 	@GetMapping("/test/hello")
 	public String test() {
-		return "you have protected resource";
+		return "Hello World";
 	}
 }

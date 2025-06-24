@@ -1,7 +1,6 @@
 package com.project.skill_share.repository;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.project.skill_share.entities.OtpToken;
 import com.project.skill_share.entities.User;
@@ -14,6 +13,7 @@ public interface OtpRepository extends JpaRepository<OtpToken, Long>{
 	 void deleteAllByUserAndPurposeAndExpiresAtBefore
 	 (User user, OtpPurpose purpose, LocalDateTime time);
 	 
-	 Optional<OtpToken> findTopByOtpOrderByGeneratedAtDesc(String otp);
-
+//	 Optional<OtpToken> findTopByOtpOrderByGeneratedAtDesc(String otp);
+	 
+	 int deleteByExpiresAtBefore(LocalDateTime time);
 }

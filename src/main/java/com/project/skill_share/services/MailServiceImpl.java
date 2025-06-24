@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.enums.OtpPurpose;
 
-
-
 @Service
 public class MailServiceImpl implements MailService{
 	

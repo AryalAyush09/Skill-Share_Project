@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import com.project.skill_share.GlobalErrorHandler.EmailAlreadyVerifiedException;
+import com.project.skill_share.GlobalErrorHandler.EmailNotVerifiedException;
 import com.project.skill_share.GlobalErrorHandler.InvalidOtpException;
 import com.project.skill_share.GlobalErrorHandler.OtpAlreadyUsedException;
 import com.project.skill_share.GlobalErrorHandler.OtpExpiredException;
@@ -33,9 +34,12 @@ public class OtpService {
 		this.otpRepo = otpRepo;
 		this.mailService = mailService;
 	}
-	 
+	
+	
 	@Transactional
-   public  GenericResponse generateOtpForUsers(String email, OtpPurpose otpPurpose) {
+     public  GenericResponse generateOtpForUsers(String email, OtpPurpose otpPurpose) {
+		LocalDateTime now = LocalDateTime.now();
+		 
 	  User user = userRepo.findByEmail(email)
 			  .orElseThrow(() -> new ResourceNotFoundException
 					  ("User Not Found with that Email:" + email));
@@ -45,7 +49,10 @@ public class OtpService {
              throw new EmailAlreadyVerifiedException("Email is already verified."); 
              }
 		  
-		LocalDateTime now = LocalDateTime.now();
+		  if (otpPurpose == OtpPurpose.RESET_PASSWORD && 
+				  user.getEmailStatus() == EmailTYPE.PENDING) {
+			  throw new EmailNotVerifiedException("Email is not verified!");
+		  }
 		    
 	    otpRepo.deleteAllByUserAndPurposeAndExpiresAtBefore
 	        (user, otpPurpose,now);
@@ -77,7 +84,7 @@ public class OtpService {
    }
    
     @Transactional
-   public GenericResponse verifyOtp(String email, String otp , OtpPurpose otpPurpose) {
+     public GenericResponse verifyOtp(String email, String otp , OtpPurpose otpPurpose) {
 	   User user = userRepo.findByEmail(email)
 			   .orElseThrow(()-> new ResourceNotFoundException("Email not Found!:" + email));
 	  
@@ -101,11 +108,7 @@ public class OtpService {
 		   if (otpPurpose == OtpPurpose.VERIFY_EMAIL) {
 			    user.setEmailStatus(EmailTYPE.VERIFIED);
 			    userRepo.save(user);
-			}   
-		   
-		   if(otpPurpose == OtpPurpose.RESET_PASSWORD) {
-			   	
-		   }
+			}  
 	   }
 	   
 	  String message = OtpUtilMessage.getMessage(otpPurpose);

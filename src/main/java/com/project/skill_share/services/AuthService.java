@@ -3,7 +3,10 @@ package com.project.skill_share.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.project.skill_share.GlobalErrorHandler.AlreadyExistsException;
+import com.project.skill_share.GlobalErrorHandler.EmailNotVerifiedException;
+import com.project.skill_share.GlobalErrorHandler.InvalidCredentialsException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
+import com.project.skill_share.GlobalErrorHandler.UserNotFoundException;
 import com.project.skill_share.configuration.JwtUtil;
 import com.project.skill_share.entities.LoginForm;
 import com.project.skill_share.entities.User;
@@ -29,7 +32,7 @@ public class AuthService {
         if(userRepo.existsByUsername(user.getUsername())) {
         	throw new AlreadyExistsException("Username already taken!");
         }
-        else if (userRepo.existsByEmail(user.getEmail())) {
+        if (userRepo.existsByEmail(user.getEmail())) {
         	throw new AlreadyExistsException("Email already taken!");
         }
         
@@ -40,22 +43,35 @@ public class AuthService {
         
         return new GenericResponse(true, "User registered successfully.", null);
     }
-    	
+    
+    
     public GenericResponse loginUser(LoginForm loginForm) {
-//    	User user = userRepo.findByUsername(loginForm.getUserName())
-//    		    .orElseThrow(() -> new ResourceNotFoundException("User not found!!"));
-        
-    	User user = userRepo.findByEmail(loginForm.getEmail())
-    		    .orElseThrow(() -> new ResourceNotFoundException("Email not found!!"));
-    	
-           if (!passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
-            	throw new ResourceNotFoundException("Password Incorrect!!!");
-            }
-           String token = jwtUtil.generateToken(user.getUsername());
-           String message = (user.getUserType() == UserType.USER)
-            		        ? "User login successful!"
-            		        : "Admin login successful!";
+        User user = userRepo.findByEmail(loginForm.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("Email not found!"));
 
-          return new GenericResponse(true, message, token);
+        validatePassword(user, loginForm.getPassword());
+        validateEmailVerified(user);
+
+//        String token = jwtUtil.generateToken(user.getId().toString());  safe to use id
+        
+        String token = jwtUtil.generateToken(user.getUsername());
+        String message = user.getUserType() == UserType.USER
+            ? "User login successful!"
+            : "Admin login successful!";
+
+        return new GenericResponse(true, message, token);
     }
+
+    private void validatePassword(User user, String Password) {
+        if (!passwordEncoder.matches(Password, user.getPassword())) {
+            throw new InvalidCredentialsException("Incorrect password!");
+        }
+    }
+
+    private void validateEmailVerified(User user) {
+        if (user.getEmailStatus() != EmailTYPE.VERIFIED) {
+            throw new EmailNotVerifiedException("Please verify your email before logging in.");
+        }
+    }
+
 }

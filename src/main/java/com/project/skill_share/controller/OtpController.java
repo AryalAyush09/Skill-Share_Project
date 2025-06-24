@@ -5,13 +5,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.project.skill_share.DTO.OtpReqDto;
+import com.project.skill_share.DTO.EmailDto;
 import com.project.skill_share.DTO.OtpVerifyDto;
+import com.project.skill_share.enums.OtpPurpose;
 import com.project.skill_share.services.OtpService;
 import jakarta.validation.Valid;
 
-@RestController
-@RequestMapping("/api")
+ @RestController
+ @RequestMapping("/api")
 
 public class OtpController {
 
@@ -21,15 +22,27 @@ public class OtpController {
 		this.otpService = otpService;
 	}
 
-	@PostMapping("/send/otp")
-	public ResponseEntity<?> sendOtp(@Valid @RequestBody OtpReqDto otpReqDto) {
-	    return ResponseEntity.ok(otpService.generateOtpForUsers(
-	         otpReqDto.getEmail(), otpReqDto.getOtpPurpose()));
-	}
+ @PostMapping("/send/email-verification")
+ public ResponseEntity<?> sendVerificationOtp(@Valid @RequestBody EmailDto dto) {
+	return ResponseEntity.ok(
+		otpService.generateOtpForUsers(dto.getEmail(), OtpPurpose.VERIFY_EMAIL));
+ }
 
-	@PostMapping("/verify/otp")
-	public ResponseEntity<?> verifyOtp(@Valid @RequestBody OtpVerifyDto dto){
-	    return ResponseEntity.ok
-	       (otpService.verifyOtp(dto.getEmail(), dto.getOtp(), dto.getOtpPurpose()));	
-	}
-}
+ @PostMapping("/send/reset-password")
+ public ResponseEntity<?> sendResetPasswordOtp(@Valid @RequestBody EmailDto dto) {
+	return ResponseEntity.ok(
+		otpService.generateOtpForUsers(dto.getEmail(), OtpPurpose.RESET_PASSWORD));
+ }
+
+ @PostMapping("/verify/email-otp")
+ public ResponseEntity<?> verifyEmailOtp(@Valid @RequestBody OtpVerifyDto dto) {
+	return ResponseEntity.ok(
+		otpService.verifyOtp(dto.getEmail(), dto.getOtp(), OtpPurpose.VERIFY_EMAIL));
+ }
+
+ @PostMapping("/verify/reset-password-otp")
+ public ResponseEntity<?> verifyResetOtp(@Valid @RequestBody OtpVerifyDto dto) {
+	return ResponseEntity.ok(
+		otpService.verifyOtp(dto.getEmail(), dto.getOtp(), OtpPurpose.RESET_PASSWORD));
+  }
+ }
