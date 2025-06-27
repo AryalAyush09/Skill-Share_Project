@@ -44,7 +44,6 @@ public class AuthService {
         return new GenericResponse(true, "User registered successfully.", null);
     }
     
-    
     public GenericResponse loginUser(LoginForm loginForm) {
         User user = userRepo.findByEmail(loginForm.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("Email not found!"));
@@ -52,9 +51,10 @@ public class AuthService {
         validatePassword(user, loginForm.getPassword());
         validateEmailVerified(user);
 
-//        String token = jwtUtil.generateToken(user.getId().toString());  safe to use id
+        //String token = jwtUtil.generateToken(user.getId().toString());  safe to use id
         
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getEmail());
+        
         String message = user.getUserType() == UserType.USER
             ? "User login successful!"
             : "Admin login successful!";
@@ -73,5 +73,4 @@ public class AuthService {
             throw new EmailNotVerifiedException("Please verify your email before logging in.");
         }
     }
-
 }

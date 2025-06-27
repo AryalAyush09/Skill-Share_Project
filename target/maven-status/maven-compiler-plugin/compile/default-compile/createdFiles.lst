@@ -4,6 +4,7 @@ com\project\skill_share\repository\UserSkillRepository.class
 com\project\skill_share\services\MailServiceImpl.class
 com\project\skill_share\GlobalErrorHandler\OtpAlreadyUsedException.class
 com\project\skill_share\services\CategoryService.class
+com\project\skill_share\services\PasswordService.class
 com\project\skill_share\controller\UserSkillController.class
 com\project\skill_share\services\MailService.class
 com\project\skill_share\DTO\SkillReqSelection.class
@@ -18,6 +19,7 @@ com\project\skill_share\GlobalErrorHandler\OtpExpiredException.class
 com\project\skill_share\Main.class
 com\project\skill_share\OTPGenerate\OtpUtil.class
 com\project\skill_share\services\SkillService.class
+com\project\skill_share\GlobalErrorHandler\TokenExpiredException.class
 com\project\skill_share\GlobalErrorHandler\UserNotFoundException.class
 com\project\skill_share\services\AuthService.class
 com\project\skill_share\controller\CategoryController.class

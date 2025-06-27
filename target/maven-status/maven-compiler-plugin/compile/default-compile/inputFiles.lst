@@ -34,6 +34,7 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\OtpExpiredException.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\OtpRateLimitException.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\ResourceNotFoundException.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\TokenExpiredException.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\UserNotFoundException.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\Main.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\OTPGenerate\OtpUtil.java
@@ -50,6 +51,7 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MailService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MailServiceImpl.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\OtpService.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\PasswordService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\SkillService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\UserSkillService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\SkillShareApplication.java

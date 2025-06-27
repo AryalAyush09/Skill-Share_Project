@@ -23,12 +23,21 @@ public class JwtUtil {
 	    }
 	 
     // Token generate garne
-    public String generateToken(String username) {
+    public String generateToken(String email) {
         return Jwts.builder()
-            .setSubject(username)
+            .setSubject(email)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
             .signWith(key, SignatureAlgorithm.HS256)
+            .compact();
+    }
+     
+    public String generateResetToken(String email) {
+        return Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // 10 minutes
+            .signWith(key,SignatureAlgorithm.HS256)
             .compact();
     }
 
@@ -52,8 +61,8 @@ public class JwtUtil {
     }
 
     // Token valid cha ki check garne
-    public boolean validateToken(String token, String username) {
+    public boolean validateToken(String token, String email) {
         String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+        return (extractedUsername.equals(email) && !isTokenExpired(token));
     }
 }

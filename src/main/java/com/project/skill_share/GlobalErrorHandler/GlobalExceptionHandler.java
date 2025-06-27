@@ -40,7 +40,18 @@ import com.project.skill_share.response.GenericResponse;
 	                .status(HttpStatus.CONFLICT)
 	                .body(new GenericResponse(false, ex.getMessage(), null));
 	    }
-
+	    
+	    @ExceptionHandler(TokenExpiredException.class)
+	    public ResponseEntity<GenericResponse> handleTokenExpired(TokenExpiredException ex) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	            .body(new GenericResponse(false, ex.getMessage(), null));
+	    }
+	    
+	    @ExceptionHandler(OtpRateLimitException.class)
+	    public ResponseEntity<GenericResponse> handleOtpRateLimit(OtpRateLimitException ex){
+	    	return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	    			.body(new GenericResponse(false, ex.getMessage(), null));
+	    }
 	}
 
 

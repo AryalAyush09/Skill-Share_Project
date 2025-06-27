@@ -12,6 +12,7 @@ import com.project.skill_share.GlobalErrorHandler.OtpRateLimitException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
 import com.project.skill_share.OTPGenerate.OtpUtil;
 import com.project.skill_share.OTPGenerate.OtpUtilMessage;
+import com.project.skill_share.configuration.JwtUtil;
 import com.project.skill_share.entities.OtpToken;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.enums.EmailTYPE;
@@ -24,22 +25,23 @@ import jakarta.transaction.Transactional;
 
 @Service	
 public class OtpService {
-	
 	private final UserRepository userRepo;
 	private final OtpRepository otpRepo;
 	private final MailService mailService;
+	private final JwtUtil jwtUtil;
 	
-	public OtpService(UserRepository userRepo,OtpRepository otpRepo, MailService mailService) {
+	public OtpService(UserRepository userRepo,OtpRepository otpRepo,
+			MailService mailService, JwtUtil jwtUtil) {
 		this.userRepo = userRepo;
 		this.otpRepo = otpRepo;
 		this.mailService = mailService;
+		this.jwtUtil = jwtUtil;
 	}
 	
-	
 	@Transactional
-     public  GenericResponse generateOtpForUsers(String email, OtpPurpose otpPurpose) {
+    public  GenericResponse generateOtpForUsers(String email, OtpPurpose otpPurpose) {
 		LocalDateTime now = LocalDateTime.now();
-		 
+
 	  User user = userRepo.findByEmail(email)
 			  .orElseThrow(() -> new ResourceNotFoundException
 					  ("User Not Found with that Email:" + email));
@@ -77,42 +79,49 @@ public class OtpService {
       OtpToken otpToken = new OtpToken(newOtp, user, otpPurpose, now, now.plusMinutes(5));
       	
 	   otpRepo.save(otpToken);
-	   
-	   mailService.sendOtpEmail(user, newOtp, otpPurpose);
-	   
-	   return new GenericResponse(true, "OTP sent successfully to email: " + user.getEmail(), null);
+	   mailService.sendOtpEmail(user, newOtp, otpPurpose);  
+	   return new GenericResponse
+			   (true, "OTP sent successfully to email: " + user.getEmail(), null);
    }
    
-    @Transactional
-     public GenericResponse verifyOtp(String email, String otp , OtpPurpose otpPurpose) {
-	   User user = userRepo.findByEmail(email)
-			   .orElseThrow(()-> new ResourceNotFoundException("Email not Found!:" + email));
-	  
-	   OtpToken latestOtp = otpRepo.findTopByUserAndPurposeOrderByGeneratedAtDesc
-			                   (user, otpPurpose);
+	@Transactional
+	public GenericResponse verifyOtp(String email, String otp, OtpPurpose otpPurpose) {
+	    User user = userRepo.findByEmail(email)
+	            .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + email));
 
-	   if(latestOtp != null) {
-		   if(latestOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
-			   throw new OtpExpiredException("OTP has Expried. Resend OTP!");
-		   }
-		   if(latestOtp.isUsed()) {
-			   throw new OtpAlreadyUsedException("OTP has been already used!");
-		   }
-		   if (!latestOtp.getOtp().equals(otp)) {
-			    throw new InvalidOtpException("Incorrect OTP.");
-			}
+	    OtpToken latestOtp = otpRepo.findTopByUserAndPurposeOrderByGeneratedAtDesc(user, otpPurpose);
 
-		   latestOtp.setUsed(true);
-		   otpRepo.save(latestOtp);	  
-		   
-		   if (otpPurpose == OtpPurpose.VERIFY_EMAIL) {
-			    user.setEmailStatus(EmailTYPE.VERIFIED);
-			    userRepo.save(user);
-			}  
-	   }
-	   
-	  String message = OtpUtilMessage.getMessage(otpPurpose);
-	  return new GenericResponse(true, message, null);
-   }
+	    if (latestOtp == null) {
+	        throw new ResourceNotFoundException("No OTP found for this user");
+	    }
+	    
+	    if (!latestOtp.getOtp().equals(otp)) {
+	        throw new InvalidOtpException("Incorrect OTP.");
+	    }
+	    
+	    if (latestOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
+	        throw new OtpExpiredException("OTP has expired. Please request a new one.");
+	    }
+
+	    if (latestOtp.isUsed()) {
+	        throw new OtpAlreadyUsedException("This OTP has already been used.");
+	    }
+
+	    latestOtp.setUsed(true);
+	    otpRepo.save(latestOtp);
+
+	    if (otpPurpose == OtpPurpose.VERIFY_EMAIL) {
+	        user.setEmailStatus(EmailTYPE.VERIFIED);
+	        userRepo.save(user);
+	        return new GenericResponse(true, "Email verified successfully", null);
+	    }
+	    
+	    if (otpPurpose == OtpPurpose.RESET_PASSWORD) {
+	        String resetToken = jwtUtil.generateResetToken(user.getEmail());
+	        return new GenericResponse(true, "Reset token generated", resetToken);
+	    }
+	    
+	    return new GenericResponse(false, "Unhandled OTP purpose", null);
+	}
 }
 
