@@ -1,5 +1,6 @@
 package com.project.skill_share.enums;
 
-public enum UserType {
-   USER, ADMIN;
+public enum Role {
+   USER, 
+   ADMIN;
 }

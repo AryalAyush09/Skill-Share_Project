@@ -16,70 +16,70 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "user_skill_table",
-        uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
-    })
-
+       uniqueConstraints = {
+           @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
+       })
 public class User_Skill {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-  
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
     @ManyToOne
     @JoinColumn(name = "skill_id", nullable = false)
-	 private Skill skillName;
-    
+    private Skill skill;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userName;
+    private User user;
 
     @Enumerated(EnumType.STRING)
-   	private SkillType type;
-    
-	@CreationTimestamp
+    private SkillType type;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-	 public User_Skill() {	 
-	 }
-	 
-	public long getId() {
-		return id;
-	}
+    public User_Skill() {}
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public Skill getSkillName() {
-		return skillName;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setSkillName(Skill skillName) {
-		this.skillName = skillName;
-	}
-	
-	public User getUserName() {
-		return userName;
-	}
+    public Skill getSkill() {
+        return skill;
+    }
 
-	public void setUserName(User userName) {
-		this.userName = userName;
-	}
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setSkill(Skill skill) {
+        this.skill = skill;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public SkillType getType() {
-		return type;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public void setType(SkillType type) {
-		this.type = type;
-	}
+    public SkillType getType() {
+        return type;
+    }
+
+    public void setType(SkillType type) {
+        this.type = type;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
+
 

@@ -28,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        String username = null;
+        String userId = null;
         String token = null;
 
         // Token header ma "Bearer " prefix sanga aauchha vane matra extract garne
@@ -38,8 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
             
             try {
             	
-                username = jwtUtil.extractUsername(token);
-                System.out.println("Extracted Username: " + username);
+                userId = jwtUtil.extractUsername(token);
+                System.out.println("Extracted Username: " + userId);
             } catch (Exception e) {
                 System.out.println("Invalid JWT Token");
                 e.printStackTrace();
@@ -47,10 +47,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // User authentication context set garne (once only)
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.validateToken(token, username)) {
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtUtil.validateToken(token, userId)) {
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

@@ -1,6 +1,5 @@
 package com.project.skill_share.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,17 +16,15 @@ import com.project.skill_share.services.SkillService;
 @RequestMapping("/api")
 
 public class Skillcontroller {
-	@Autowired
-	private SkillService skillService;
 	
-	@GetMapping("/get/skill")
+	private final SkillService skillService;
+	
+	public Skillcontroller(SkillService skillService) {
+		this.skillService = skillService;
+	}
+	
+	@GetMapping("/skills")
 		public ResponseEntity<GenericResponse> getSkill(Skill skill){
 			return ResponseEntity.ok(skillService.getAllSkill());
 		}
-	
-	@PostMapping("/add/skill")
-	public ResponseEntity<GenericResponse> createSkill(@RequestBody SkillReqDTO skillDto) {
-	    return ResponseEntity.ok(skillService.addSkill(skillDto));
-	}
-
 }

@@ -3,7 +3,7 @@ package com.project.skill_share.entities;
 public class LoginForm {
      private String email;
      private String password;
-//     private String userName;
+//    private String userName;
      
      public LoginForm(String email ,String password) {
     	 this.email=email;

@@ -61,8 +61,8 @@ public class JwtUtil {
     }
 
     // Token valid cha ki check garne
-    public boolean validateToken(String token, String email) {
+    public boolean validateToken(String token, String userId) {
         String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(email) && !isTokenExpired(token));
+        return (extractedUsername.equals(userId) && !isTokenExpired(token));
     }
 }

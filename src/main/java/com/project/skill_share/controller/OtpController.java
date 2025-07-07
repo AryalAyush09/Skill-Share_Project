@@ -23,20 +23,26 @@ public class OtpController {
 	}
 	
  @PostMapping("/send/otp/{purpose}")
- public ResponseEntity<?> sendOtp(@PathVariable OtpPurpose otpPurpose,
+ public ResponseEntity<?> sendOtp(@PathVariable String purpose,
 		   @Valid @RequestBody EmailDto dto){
-	 return ResponseEntity.ok(otpService.generateOtpForUsers(dto.getEmail(), otpPurpose));
+	 try {
+	        OtpPurpose otpPurpose = OtpPurpose.valueOf(purpose.toUpperCase());
+	        return ResponseEntity.ok(otpService.generateOtpForUsers(dto.getEmail(), otpPurpose));
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().body("Invalid OTP purpose: " + purpose);
+	    }
  }
 
  @PostMapping("verify/otp/{purpose}")
- public ResponseEntity<?> verifyOtp(@PathVariable OtpPurpose otpPurpose, OtpVerifyDto dto){
-	 return ResponseEntity.ok(otpService.verifyOtp(dto.getEmail(),dto.getOtp(), otpPurpose));
- }
- 
-// @PostMapping("/send/otp/{purpose}")
-// public ResponseEntity<?> sendOtp(@PathVariable String purpose,
-//                                  @Valid @RequestBody EmailDto dto) {
-//     OtpPurpose otpPurpose = OtpPurpose.valueOf(purpose.toUpperCase());
-//     return ResponseEntity.ok(otpService.generateOtpForUsers(dto.getEmail(), otpPurpose));
-// }
+ public ResponseEntity<?> verifyOtp(@PathVariable String purpose, 
+		         @RequestBody OtpVerifyDto dto){
+	 try {
+	        OtpPurpose otpPurpose = OtpPurpose.valueOf(purpose.toUpperCase()); // or use fromString()
+	        return ResponseEntity.ok(
+	            otpService.verifyOtp(dto.getEmail(), dto.getOtp(), otpPurpose));
+	   
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().body("Invalid OTP purpose: " + purpose);
+	    }
+  }
  }

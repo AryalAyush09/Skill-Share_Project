@@ -1,9 +1,12 @@
 package com.project.skill_share.GlobalErrorHandler;
+import java.io.IOException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.project.skill_share.response.ApiResponse;
 import com.project.skill_share.response.GenericResponse;
 
 	@ControllerAdvice
@@ -51,6 +54,13 @@ import com.project.skill_share.response.GenericResponse;
 	    public ResponseEntity<GenericResponse> handleOtpRateLimit(OtpRateLimitException ex){
 	    	return ResponseEntity.status(HttpStatus.NOT_FOUND)
 	    			.body(new GenericResponse(false, ex.getMessage(), null));
+	    }
+	    
+	    @ExceptionHandler(IOException.class)
+	    public ResponseEntity<ApiResponse<Object>> handleIOException(IOException ex) {
+	        return ResponseEntity
+	                .status(HttpStatus.BAD_REQUEST)
+	                .body(new ApiResponse<>(false, ex.getMessage(), null));
 	    }
 	}
 

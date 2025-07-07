@@ -1,6 +1,5 @@
 package com.project.skill_share.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,11 +16,13 @@ import com.project.skill_share.services.CategoryService;
 
 public class CategoryController {
 	
-   @Autowired
-   private CategoryService CatService;
+   private final CategoryService CatService;
+   
+   public CategoryController(CategoryService CatService) {
+	   this.CatService = CatService;
+   }
     
-    
-    @GetMapping("/category")
+    @GetMapping("/get/category")
     public ResponseEntity<GenericResponse> getAllCategories() {
         return ResponseEntity.ok(CatService.getAllCategories());
     }

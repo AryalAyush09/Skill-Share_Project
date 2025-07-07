@@ -1,10 +1,11 @@
 package com.project.skill_share.entities;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.hibernate.annotations.CreationTimestamp;
 import com.project.skill_share.enums.EmailTYPE;
-import com.project.skill_share.enums.UserType;
-
+import com.project.skill_share.enums.Role;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,13 +14,13 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
-    private String contact_number;
+    private String contactNumber;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -27,8 +28,21 @@ public class User {
     @Column(nullable = false)
     private String password;
     
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserImage> images;
+    
+    @Column(name = "github_link")
+    private String gitHub;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
+    
+    @OneToOne
+    @JoinColumn(name = "profile_image_id")
+    private UserImage profileImage;
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserCV userCV;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -36,17 +50,16 @@ public class User {
     
     @Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-    private UserType userType;
-    
+    private Role roles;
+ 
 	public User() {}
 
-    // Getters & Setters
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -58,15 +71,15 @@ public class User {
         this.username = username;
     }
 
-    public String getContact_number() {
-        return contact_number;
-    }
+    public String getContactNumber() {
+		return contactNumber;
+	}
 
-    public void setContact_number(String contact_number) {
-        this.contact_number = contact_number;
-    }
+	public void setContactNumber(String contactNumber) {
+		this.contactNumber = contactNumber;
+	}
 
-    public String getEmail() {
+	public String getEmail() {
         return email;
     }
 
@@ -98,12 +111,42 @@ public class User {
 		this.emailStatus = emailStatus;
 	}
 
-    public UserType getUserType() {
-		return userType;
+	public List<UserImage> getImages() {
+		return images;
 	}
 
-	public void setUserType(UserType userType) {
-		this.userType = userType;
+	public void setImages(List<UserImage> images) {
+		this.images = images;
+	}
+
+	public String getGitHub() {
+		return gitHub;
+	}
+
+	public UserImage getProfileImage() {
+		return profileImage;
+	}
+
+	public void setProfileImage(UserImage profileImage) {
+		this.profileImage = profileImage;
+	}
+
+	public void setGitHub(String gitHub) {
+		this.gitHub = gitHub;
+	}
+
+	public Role getRoles() {
+		return roles;
+	}
+
+    public UserCV getUserCV() {
+        return userCV;
+    }
+    public void setUserCV(UserCV userCV) {
+        this.userCV = userCV;
+    }
+	public void setRoles(Role roles) {
+		this.roles = roles;
 	}
 
 }

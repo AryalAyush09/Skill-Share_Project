@@ -10,6 +10,7 @@ import com.project.skill_share.GlobalErrorHandler.AlreadyExistsException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
 import com.project.skill_share.entities.Category;
 import com.project.skill_share.repository.CategoryRepository;
+import com.project.skill_share.response.ApiResponse;
 import com.project.skill_share.response.GenericResponse;
 
 @Service

@@ -10,7 +10,6 @@ import com.project.skill_share.entities.Skill;
 import com.project.skill_share.enums.SkillType;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.entities.User_Skill;
-import com.project.skill_share.repository.CategoryRepository;
 import com.project.skill_share.repository.SkillRepository;
 import com.project.skill_share.repository.UserSkillRepository;
 import com.project.skill_share.response.GenericResponse;
@@ -23,9 +22,6 @@ public class UserSkillService {
 
     @Autowired
     private SkillRepository skillRepo;
-
-    @Autowired
-    private CategoryRepository catRepo;
 
     public GenericResponse addUserSkills(SkillReqSelection skillRequest, 
                   CategorySkillDTO catskilldto, User user) {
@@ -61,15 +57,15 @@ public class UserSkillService {
         if (!skill.getCategory().getCategoryName().equals(categoryName)) {
             throw new ResourceNotFoundException("Skill " + skillName + " does not belong to category " + categoryName);
         }
-        boolean exists = userSkillRepo.existsByUserNameAndSkillNameAndType(user, skill, type);
+        boolean exists = userSkillRepo.existsByUserAndSkillAndType(user, skill, type);
         
         if(exists) {
         throw new AlreadyExistsException("User already has skill " + skillName + " with type " + type);
         }
        // Save user-skill entry
         User_Skill userSkill = new User_Skill();
-        userSkill.setUserName(user);
-        userSkill.setSkillName(skill);
+        userSkill.setUser(user);
+        userSkill.setSkill(skill);
         userSkill.setType(type);
 
         userSkillRepo.save(userSkill);

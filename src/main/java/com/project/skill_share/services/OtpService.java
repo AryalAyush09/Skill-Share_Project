@@ -10,8 +10,8 @@ import com.project.skill_share.GlobalErrorHandler.OtpAlreadyUsedException;
 import com.project.skill_share.GlobalErrorHandler.OtpExpiredException;
 import com.project.skill_share.GlobalErrorHandler.OtpRateLimitException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
+
 import com.project.skill_share.OTPGenerate.OtpUtil;
-import com.project.skill_share.OTPGenerate.OtpUtilMessage;
 import com.project.skill_share.configuration.JwtUtil;
 import com.project.skill_share.entities.OtpToken;
 import com.project.skill_share.entities.User;
@@ -63,13 +63,13 @@ public class OtpService {
       OtpToken latestOtp = otpRepo.findTopByUserAndPurposeOrderByGeneratedAtDesc
     		  (user, otpPurpose);
       
-      //  Check if OTP exists and cooldown period passedx`
+      //  Check if OTP exists and cooldown period passed
       if (latestOtp != null) {
           long secondsSinceLastOtp = Duration.between
         		  (latestOtp.getGeneratedAt(), now).getSeconds();
-          int cooldownSec = 120; // example 2 minutes cooldown
+          int cooldownSec = 120; // example 2 min cooldown
           
-          //  If cooldown not passed throw exception
+          //  if cooldown not passed throw exception
           if (secondsSinceLastOtp < cooldownSec) {
               throw new OtpRateLimitException("Please wait before requesting another OTP.");
           }

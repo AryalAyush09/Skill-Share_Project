@@ -1,7 +1,8 @@
 package com.project.skill_share.services;
+
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.project.skill_share.DTO.SkillReqDTO;
 import com.project.skill_share.GlobalErrorHandler.AlreadyExistsException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
@@ -13,11 +14,13 @@ import com.project.skill_share.response.GenericResponse;
 @Service
 public class SkillService {
 
-	@Autowired 
-	private SkillRepository skillRepo;
-
-    @Autowired
-	private CategoryService catService;//interface ya use vaxa 
+	private final SkillRepository skillRepo;
+	private final CategoryService catService;
+	
+	public SkillService(SkillRepository skillRepo, CategoryService catService) {
+		this.skillRepo = skillRepo;
+		this.catService = catService;
+	}
 	
 	public GenericResponse getAllSkill() {
 		List<Skill> Skills = skillRepo.findAll();
