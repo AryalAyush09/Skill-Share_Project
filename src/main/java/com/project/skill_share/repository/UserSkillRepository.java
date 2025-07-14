@@ -9,6 +9,12 @@ import com.project.skill_share.entities.User;
 import com.project.skill_share.entities.User_Skill;
 
 public interface UserSkillRepository extends JpaRepository<User_Skill, Long> {
+	
 	   boolean existsByUserAndSkillAndType(User user, Skill skill, SkillType type);
-       List<User_Skill> findByUser(User user);
+  
+	   List<User_Skill> findByUser(User user);
+       
+       List<User_Skill> findByUserAndType(User currentUser, SkillType type);
+       
+       List<User_Skill> findByType(SkillType skillType);	
 }

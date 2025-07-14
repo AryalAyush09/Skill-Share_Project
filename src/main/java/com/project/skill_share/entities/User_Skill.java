@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
        uniqueConstraints = {
            @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
        })
-public class User_Skill {
+   public class User_Skill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

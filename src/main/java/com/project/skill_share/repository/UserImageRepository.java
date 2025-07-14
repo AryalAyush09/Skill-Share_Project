@@ -15,7 +15,6 @@ public interface UserImageRepository extends JpaRepository<UserImage, Long> {
      List<UserImage>findByUser(User user);
      
      // profile or certificate photo acc to type
-
      List<UserImage> findByUserAndImageType(User user, ImageType imageType);
 
      UserImage findTopByUserOrderByCreatedAtDesc(User user);
@@ -25,5 +24,4 @@ public interface UserImageRepository extends JpaRepository<UserImage, Long> {
      
      // if user deletes their account then image also be deleted 
      void deleteAllByUser(User user);
-
 }

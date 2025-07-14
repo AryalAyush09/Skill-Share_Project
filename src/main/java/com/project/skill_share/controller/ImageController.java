@@ -20,8 +20,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/users")
-@Tag(name = "Image & CV Uploads", description = "Handles user photo and CV/PDF upload/update operations")
+@RequestMapping("/api/v1/users")
+@Tag(name = "Image & CV Uploads", description = "Handles user photo and CV/PDF upload/updateand ao delete operations")
 public class ImageController {
 	
 	private final ImageService imageService;
@@ -60,10 +60,17 @@ public class ImageController {
 	   return ResponseEntity.ok(imageService.replaceCV(file, userId));
    }
       
-//      @Operation(summary = "Delete User Image")
-//      @DeleteMapping(value = "/delete/images")
-//       public ResponseEntity<ApiResponse<?>> deleteImage(Authentication auth){
-//    	  Long userId = Long.parseLong(auth.getName());
-//    	  return ResponseEntity.ok(imageService.deletePhoto(userId));
-//      }
+      @Operation(summary = "Delete User Image")
+      @DeleteMapping("/delete/images")
+       public ResponseEntity<ApiResponse<?>> deleteImage(Authentication auth){
+    	  Long userId = Long.parseLong(auth.getName());
+    	  return ResponseEntity.ok(imageService.deletePhoto(userId));
+      }
+      
+      @Operation(summary = "Delete User CV")
+      @DeleteMapping("/delete/CV")
+       public ResponseEntity<ApiResponse<?>> deleteCV(Authentication auth){
+    	  Long userId  = Long.parseLong(auth.getName());
+    	  return ResponseEntity.ok(imageService.deleteCV(userId));
+      }
 }

@@ -7,29 +7,33 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.project.skill_share.DTO.ImageDto;
+import com.project.skill_share.GlobalErrorHandler.CloudOperationFailedException;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
 import com.project.skill_share.GlobalErrorHandler.UserNotFoundException;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.entities.UserCV;
 import com.project.skill_share.entities.UserImage;
 import com.project.skill_share.enums.ImageType;
+import com.project.skill_share.repository.UserCVRepository;
 import com.project.skill_share.repository.UserImageRepository;
 import com.project.skill_share.repository.UserRepository;
 import com.project.skill_share.response.ApiResponse;
 import java.io.IOException;
 
-@Service
-public class ImageService {
+ @Service
+  public class ImageService {
 
 	private final Cloudinary cloudinary;
 	private final UserRepository userRepo;
 	private final UserImageRepository userImageRepo;
+	private final UserCVRepository userCvRepo;
 
 	public ImageService(Cloudinary cloudinary, UserRepository userRepo,
-	                    UserImageRepository userImageRepo) {
+	                    UserImageRepository userImageRepo, UserCVRepository userCvRepo) {
 		this.cloudinary = cloudinary;
 		this.userRepo = userRepo;
 		this.userImageRepo = userImageRepo;
+		this.userCvRepo = userCvRepo;
 	}
 
 	public ApiResponse<ImageDto> uploadImage(MultipartFile file, Long userId, ImageType imgType) {
@@ -143,22 +147,52 @@ public class ImageService {
 	   }
    }
     
-//    public ApiResponse<?> deletePhoto(Long userId){
-//    	User user = getUserById(userId);
-//         
-//    	UserImage profileImage = user.getProfileImage()
-//    			.orElseThrow(() -> new ResourceNotFoundException("Profile Image Not Found"));
-//    	
-//    	String publicId = profileImage.getPublicId();
-//    	try {
-//    		cloudinary.uploader().destroy(publicId, Map.of());
-//    	} catch (IOException e) {
-//    		throw new RuntimeException("Failed to delete the photo");
-//    	}
-//    	
-//    	return new ApiResponse<>(true, "Successfully deleted the user image", null);
-//    }
-//    
+    public ApiResponse<?> deletePhoto(Long userId){
+    	User user = getUserById(userId);
+         
+    	UserImage profileImage = user.getImages().stream()
+    			.filter(img -> img.getImageType() == ImageType.PROFILE).findFirst()
+    			.orElseThrow(()-> new ResourceNotFoundException("Profile image not found"));
+    	
+    	
+    	String publicId = profileImage.getPublicId();
+    	
+    	try {
+    		cloudinary.uploader().destroy(publicId, Map.of());
+    	} catch (IOException e) {
+    		throw new CloudOperationFailedException("Failed to delete the photo");
+    	}
+    	
+    	user.getImages().remove(profileImage);
+    	userImageRepo.delete(profileImage);
+    	
+    	return new ApiResponse<>(true, "Successfully deleted the user image", null);
+    }
+ 
+    public ApiResponse<?> deleteCV(Long userId){
+    	
+    	User user = getUserById(userId);
+    	
+    	  UserCV userCv = user.getUserCV();
+    	  
+    	  if(userCv == null) {
+    		  throw new ResourceNotFoundException("CV not found for this user");
+    	  }
+    	
+    	String publicId = userCv.getPublicId();
+    	
+    	try {
+    		cloudinary.uploader().destroy(publicId, Map.of());
+    	} catch(IOException e) {
+    		throw new CloudOperationFailedException("Failed to delete the photo");
+    	}
+    	
+    	user.setUserCV(null);
+    	userCvRepo.delete(userCv);
+    	
+    	return new ApiResponse<>(true, "CV Deleted Successfully", null);
+    }
+    
 	  private void validateImage(MultipartFile file) {
 	        validateFile(file, new String[]{"image/jpeg", "image/jpg", "image/png"}, "Only JPEG and PNG images are allowed");
 	    }
@@ -180,15 +214,16 @@ public class ImageService {
 	                break;
 	            }
 	        }
-	        if (!valid) throw new IllegalArgumentException(errorMessage);
+	        if (!valid) 
+	        	throw new IllegalArgumentException(errorMessage);
 	    }
 	    
-	private User getUserById(Long userId) {
+	  private User getUserById(Long userId) {
 		return userRepo.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 	}
 
-	private UserImage uploadToCloudinary(MultipartFile file, User user, ImageType imgType) {
+	  private UserImage uploadToCloudinary(MultipartFile file, User user, ImageType imgType) {
 		try {
 			Map<String, Object> options = Map.of(
 					"folder", "user-images/" + imgType.name().toLowerCase(),
@@ -207,7 +242,7 @@ public class ImageService {
 		}
 	}
 
-	private ImageDto toImageDto(UserImage userImg) {
+	  private ImageDto toImageDto(UserImage userImg) {
 		ImageDto dto = new ImageDto();
 		dto.setImageUrl(userImg.getImageUrl());
 		dto.setPublicId(userImg.getPublicId());
