@@ -10,13 +10,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+import com.project.skill_share.DTO.MatchRequestDto;
 import com.project.skill_share.DTO.MatchResultDto;
 import com.project.skill_share.DTO.MatchSkillDto;
 import com.project.skill_share.GlobalErrorHandler.UserNotFoundException;
+import com.project.skill_share.entities.MatchUser;
 import com.project.skill_share.entities.Skill;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.entities.User_Skill;
+import com.project.skill_share.enums.MatchStatus;
 import com.project.skill_share.enums.SkillType;
+import com.project.skill_share.repository.MatchUserRepository;
 import com.project.skill_share.repository.SkillRepository;
 import com.project.skill_share.repository.UserRepository;
 import com.project.skill_share.repository.UserSkillRepository;
@@ -28,11 +32,14 @@ public class MatchService {
 	private final UserRepository userRepo;
 	private final UserSkillRepository userSkillRepo;
 	private final SkillRepository skillRepo;
+	private final MatchUserRepository matchUserRepo;
 
-	public MatchService(UserRepository userRepo, UserSkillRepository userSkillRepo, SkillRepository skillRepo) {
+	public MatchService(UserRepository userRepo, UserSkillRepository userSkillRepo,
+			MatchUserRepository matchUserRepo, SkillRepository skillRepo) {
 		this.userRepo = userRepo;
 		this.userSkillRepo = userSkillRepo;
 		this.skillRepo = skillRepo;
+		this.matchUserRepo = matchUserRepo;
 	}
 
   public ApiResponse<?> matchingUser(Long currentUserId){
@@ -80,8 +87,10 @@ public class MatchService {
 	    System.out.println("takeMatch: " + matchedTakeCategories);
 	    
 	    //check whether Categories is Matched or not 
-	    if(!matchedGiveCategories.isEmpty() && !matchedTakeCategories.isEmpty()) {
-	    	
+	    if (matchedGiveCategories.isEmpty() || matchedTakeCategories.isEmpty()) {
+	    	continue;
+	    }
+	    
 	    	//Filter or match the skills with each Category matched
 	    	Set<Long> currentGiveSkills = 
 	    			filterSkillIdsByCategories(currentUserHaveSkills,matchedGiveCategories);
@@ -102,25 +111,39 @@ public class MatchService {
             System.out.println("currentTakeSkills: " + currentTakeSkills);
             System.out.println("otherHaveSkillsInCategory: " + otherHaveSkillsInCategory);
 	
-		    if(!matchedGiveSkills.isEmpty() && !matchedTakeSkills.isEmpty()) {
-		      int countGive = matchedGiveSkills.size();
-			  int countTake = matchedTakeSkills.size();
-			  int totalSkills = otherNeedSkillsInCategory.size() + otherHaveSkillsInCategory.size();
-			  int percentage  = (countGive + countTake)/(totalSkills)*100;
+            if (!matchedGiveSkills.isEmpty() && !matchedTakeSkills.isEmpty()) {
+            	int matchedTeach = matchedGiveSkills.size();
+				int matchedLearn = matchedTakeSkills.size();
+
+				int mutual = Math.min(matchedTeach, matchedLearn);
+				if (mutual == 0)
+					continue;
+
+				int totalCurrentSkills = currentUserHaveSkills.size() + currentUserNeedSkills.size();
+				int totalOtherSkills = otherHaveSkills.size() + otherNeedSkills.size();
 				
+				if (totalCurrentSkills == 0 || totalOtherSkills == 0)
+					continue;
+				
+				double currentRatio = (double) mutual * 2 / totalCurrentSkills;
+				double otherRatio = (double) mutual * 2 / totalOtherSkills;
+				
+				int balancedScore =  (int) ((currentRatio + otherRatio) /2 *100);
+				balancedScore = (int) (Math.round(balancedScore / 10.0) *10);
+
 			  MatchResultDto dto = new MatchResultDto();
 			   dto.setUserId(otherUser.getId());
 			   dto.setUserName(otherUser.getUsername());
 			   dto.setCanLearn(mapSkillsById(matchedGiveSkills));
 			   dto.setCanTeach(mapSkillsById(matchedTakeSkills));
-			   dto.setPercentage(percentage);
+			   dto.setMatchingScore(balancedScore);
 			   dto.setProfileImageUrl(
 					    otherUser.getProfileImage() != null ? otherUser.getProfileImage().getImageUrl() : null);
 			   matchedUsers.add(dto);
 		    }
 		  }
-		}
-	   matchedUsers.sort((a, b) -> b.getPercentage() - a.getPercentage());
+	 matchedUsers.sort((a, b) -> b.getMatchingScore() - a.getMatchingScore());
+
 	   
 	   if(matchedUsers.isEmpty()) {
 		   return new ApiResponse<>(true, "No User Matched your SKills", Collections.emptyList());
@@ -153,5 +176,32 @@ public class MatchService {
 		List<Skill> skills = skillRepo.findAllById(skillIds);
 		return skills.stream().map(skill -> new MatchSkillDto(skill.getId(), skill.getSkillName()))
 				.collect(Collectors.toSet());
+	}
+	
+	public ApiResponse<?> sendRequest(Long currentUserId, MatchRequestDto dto){
+
+		Long targetUserId = dto.getTargetUserId();
+		float matchingScore = dto.getMatchingScore();
+		
+		if(currentUserId.equals(targetUserId)) {
+			return new ApiResponse<>(false, "you cant send request to yourself", null);	
+		}
+		 boolean exists = matchUserRepo.existsConfirmedorPendingMatchBetweenUsers(currentUserId, targetUserId);
+		 if(exists) {
+			 return new ApiResponse<>(false, "Match request already exists", null);
+		 }
+
+		 getUserById(currentUserId);
+	     getUserById(targetUserId);
+		
+		MatchUser matchUser = new MatchUser();
+		matchUser.setCurrentUserId(currentUserId);
+		matchUser.setOtherUserId(targetUserId);
+		matchUser.setMatchingScore(matchingScore);
+		matchUser.setMatchStatus(MatchStatus.PENDING);
+		
+		matchUserRepo.save(matchUser);
+		
+		return new ApiResponse<>(true, "Match Request Sent Successfully", null);
 	}
 }

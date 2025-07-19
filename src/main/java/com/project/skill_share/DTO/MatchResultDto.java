@@ -6,7 +6,7 @@ public class MatchResultDto {
 	
   private Long userId;
   private String userName;
-  private int Percentage;
+  private int matchingScore;
   private String profileImageUrl;
   private Set<MatchSkillDto> canTeach;
   private Set<MatchSkillDto> canLearn;
@@ -18,11 +18,11 @@ public void setUserId(Long userId) {
 	this.userId = userId;
 }
 
-public int getPercentage() {
-	return Percentage;
+public int getMatchingScore() {
+	return matchingScore;
 }
-public void setPercentage(int percentage) {
-	Percentage = percentage;
+public void setMatchingScore(int matchingScore) {
+	this.matchingScore = matchingScore;
 }
 public String getUserName() {
 	return userName;
