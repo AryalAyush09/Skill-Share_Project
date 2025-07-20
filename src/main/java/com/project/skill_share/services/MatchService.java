@@ -15,12 +15,14 @@ import com.project.skill_share.DTO.MatchResultDto;
 import com.project.skill_share.DTO.MatchSkillDto;
 import com.project.skill_share.GlobalErrorHandler.UserNotFoundException;
 import com.project.skill_share.entities.MatchUser;
+import com.project.skill_share.entities.Notification;
 import com.project.skill_share.entities.Skill;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.entities.User_Skill;
 import com.project.skill_share.enums.MatchStatus;
 import com.project.skill_share.enums.SkillType;
 import com.project.skill_share.repository.MatchUserRepository;
+import com.project.skill_share.repository.NotificationRepository;
 import com.project.skill_share.repository.SkillRepository;
 import com.project.skill_share.repository.UserRepository;
 import com.project.skill_share.repository.UserSkillRepository;
@@ -33,16 +35,21 @@ public class MatchService {
 	private final UserSkillRepository userSkillRepo;
 	private final SkillRepository skillRepo;
 	private final MatchUserRepository matchUserRepo;
+	private final NotificationService notificationService;
+	private final NotificationRepository notificationRepo;
 
 	public MatchService(UserRepository userRepo, UserSkillRepository userSkillRepo,
-			MatchUserRepository matchUserRepo, SkillRepository skillRepo) {
+			MatchUserRepository matchUserRepo, SkillRepository skillRepo, 
+			NotificationService notificationService,NotificationRepository notificationRepo) {
 		this.userRepo = userRepo;
 		this.userSkillRepo = userSkillRepo;
 		this.skillRepo = skillRepo;
 		this.matchUserRepo = matchUserRepo;
+		this.notificationService = notificationService;
+		this.notificationRepo = notificationRepo;
 	}
 
-  public ApiResponse<?> matchingUser(Long currentUserId){
+   public ApiResponse<?> matchingUser(Long currentUserId){
 		
 		User currentUser = getUserById(currentUserId);
         
@@ -179,8 +186,13 @@ public class MatchService {
 	}
 	
 	public ApiResponse<?> sendRequest(Long currentUserId, MatchRequestDto dto){
-
+         User currentUser = getUserById(currentUserId);
+        
 		Long targetUserId = dto.getTargetUserId();
+		if (targetUserId == null) {
+		    return new ApiResponse<>(false, "Target userId must not be null", null);
+		}
+
 		float matchingScore = dto.getMatchingScore();
 		
 		if(currentUserId.equals(targetUserId)) {
@@ -190,6 +202,8 @@ public class MatchService {
 		 if(exists) {
 			 return new ApiResponse<>(false, "Match request already exists", null);
 		 }
+		 System.out.println("Request sent by userId: " + currentUserId);
+		 System.out.println("Target userId: " + dto.getTargetUserId());
 
 		 getUserById(currentUserId);
 	     getUserById(targetUserId);
@@ -202,6 +216,47 @@ public class MatchService {
 		
 		matchUserRepo.save(matchUser);
 		
+		String notifMessage = currentUser.getUsername() + " sent you a skill match request.";
+		notificationService.sendNotification(targetUserId, notifMessage);
+	    
+		String senderMessage = "You have sent matching Request to " +  getUserById(targetUserId).getUsername();
+		notificationService.sendNotification(currentUserId, senderMessage);
+		
 		return new ApiResponse<>(true, "Match Request Sent Successfully", null);
 	}
+	
+	public ApiResponse<?> respondToRequest(Long currentUserId, Long requesterUserId, MatchStatus responseStatus) {
+	  
+	    if (responseStatus != MatchStatus.CONFIRMED && responseStatus != MatchStatus.REJECTED) {
+	        return new ApiResponse<>(false, "Invalid response status", null);
+	    }
+
+	    MatchUser matchRequest = matchUserRepo
+	        .findByCurrentUserIdAndOtherUserIdAndMatchStatus(requesterUserId, currentUserId, MatchStatus.PENDING)
+	        .orElse(null);
+
+	    if (matchRequest == null) {
+	        return new ApiResponse<>(false, "No pending match request found", null);
+	    }
+	    
+	    matchRequest.setMatchStatus(responseStatus);
+	    matchUserRepo.save(matchRequest);
+	    
+	    String message = responseStatus == MatchStatus.CONFIRMED ?
+	        "Your skill match request was accepted." :
+	        "Your skill match request was rejected.";
+
+	    notificationService.sendNotification(requesterUserId, message);
+
+	     if(responseStatus == MatchStatus.CONFIRMED) {
+	        MatchUser reciprocal = new MatchUser();
+	        reciprocal.setCurrentUserId(currentUserId);
+	        reciprocal.setOtherUserId(requesterUserId);
+	        reciprocal.setMatchingScore(matchRequest.getMatchingScore());
+	        reciprocal.setMatchStatus(MatchStatus.CONFIRMED);
+	        matchUserRepo.save(reciprocal);
+	    }
+	    return new ApiResponse<>(true, "Request " + responseStatus.name().toLowerCase() + " successfully", null);
+	}
+
 }

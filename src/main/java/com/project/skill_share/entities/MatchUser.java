@@ -25,6 +25,7 @@ public class MatchUser {
    
    private Long currentUserId;
    private Long otherUserId;
+   @Column(nullable = false)	
    private float matchingScore;
    
    @Enumerated(EnumType.STRING)

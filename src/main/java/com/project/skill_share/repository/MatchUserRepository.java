@@ -57,4 +57,7 @@ public interface MatchUserRepository extends JpaRepository<MatchUser, Long> {
     @Query("SELECT m FROM MatchUser m WHERE (m.currentUserId = :userId OR m.otherUserId = :userId) " +
            "AND m.matchStatus = :status")
     List<MatchUser> findByUserIdAndStatus(Long userId, MatchStatus status);
+
+    Optional<MatchUser> findByCurrentUserIdAndOtherUserIdAndMatchStatus(Long currentUserId, Long otherUserId, MatchStatus status);
+
 }

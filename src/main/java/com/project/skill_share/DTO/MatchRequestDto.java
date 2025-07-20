@@ -17,6 +17,4 @@ public class MatchRequestDto {
 	public void setMatchingScore(float matchingScore) {
 		this.matchingScore = matchingScore;
 	}
-
-   
 }
