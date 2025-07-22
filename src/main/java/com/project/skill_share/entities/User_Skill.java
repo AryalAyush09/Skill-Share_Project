@@ -1,51 +1,58 @@
 package com.project.skill_share.entities;
 
 import java.time.LocalDateTime;
+
 import org.hibernate.annotations.CreationTimestamp;
+
 import com.project.skill_share.enums.SkillType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_skill_table",
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
-       })
-   public class User_Skill {
+@Table(
+    name = "user_skill_table",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "skill_id", "type"})
+)
+public class User_Skill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SkillType type;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
+  
     public User_Skill() {}
 
-    public long getId() {
+    public User_Skill(Long id, Skill skill, User user, SkillType type, LocalDateTime createdAt) {
+        this.id = id;
+        this.skill = skill;
+        this.user = user;
+        this.type = type;
+        this.createdAt = createdAt;
+    }
+
+    // Getters and Setters
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -81,5 +88,3 @@ import jakarta.persistence.UniqueConstraint;
         this.createdAt = createdAt;
     }
 }
-
-

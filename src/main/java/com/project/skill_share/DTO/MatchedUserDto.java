@@ -3,7 +3,7 @@ package com.project.skill_share.DTO;
 public class MatchedUserDto {
   private Long Id;
   private String userName;
-  private String profileImages;
+  private String profileImageUrl;
   
 public Long getId() {
 	return Id;
@@ -17,12 +17,11 @@ public String getUserName() {
 public void setUserName(String userName) {
 	this.userName = userName;
 }
-public String getProfileImages() {
-	return profileImages;
+public String getProfileImageUrl() {
+	return profileImageUrl;
 }
-public void setProfileImages(String profileImages) {
-	this.profileImages = profileImages;
+public void setProfileImageUrl(String profileImageUrl) {
+	this.profileImageUrl = profileImageUrl;
 }
-  
-  
+
 }

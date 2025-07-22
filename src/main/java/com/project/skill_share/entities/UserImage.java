@@ -29,6 +29,7 @@ public class UserImage {
 	private String imageUrl; 
 	
 	@ManyToOne
+
 	@JoinColumn(name = "user_id")
     private User user;
 

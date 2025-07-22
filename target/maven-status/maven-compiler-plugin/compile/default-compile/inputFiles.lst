@@ -9,8 +9,10 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\AdminController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\AuthController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\CategoryController.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\ChatWebSocketController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\ImageController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\MatchController.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\MessageController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\NotificationController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\OtpController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\Skillcontroller.java
@@ -18,6 +20,8 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\controller\UserSkillController.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\AdminUserDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\CategorySkillDTO.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\ChatMessageDto.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\ChatResponseDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\EmailDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\ImageDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\LoginResponseDto.java
@@ -30,12 +34,14 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\OtpVerifyDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\SkillReqDTO.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\SkillReqSelection.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\UserRegisterRequestDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\UserResponseDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\UserSkillResponseDTO.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\DTO\UserUpdateDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\Category.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\LoginForm.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\MatchUser.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\MessageBox.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\Notification.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\OtpToken.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\entities\Skill.java
@@ -46,6 +52,7 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\EmailTYPE.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\ImageType.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\MatchStatus.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\MessageType.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\OtpPurpose.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\Role.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\enums\SkillType.java
@@ -65,11 +72,13 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\GlobalErrorHandler\UserNotFoundException.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\helperClass\UserToDto.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\Main.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\Mapper\MessageMapper.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\Mapper\UserMapper.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\OTPGenerate\OtpUtil.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\OTPGenerate\OtpUtilMessage.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\CategoryRepository.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\MatchUserRepository.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\MessageBoxRepository.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\NotificationRepository.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\OtpRepository.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\repository\SkillRepository.java
@@ -88,6 +97,7 @@ C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_sha
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MailServiceImpl.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MatchService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MatchUserService.java
+C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\MessageService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\NotificationService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\OtpService.java
 C:\Users\Administrator\Downloads\skill-share\src\main\java\com\project\skill_share\services\PasswordService.java

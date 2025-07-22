@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.skill_share.DTO.LoginResponseDto;
 import com.project.skill_share.DTO.LoginUserDto;
+import com.project.skill_share.DTO.UserRegisterRequestDto;
 import com.project.skill_share.GlobalErrorHandler.AlreadyExistsException;
 import com.project.skill_share.GlobalErrorHandler.EmailNotVerifiedException;
 import com.project.skill_share.GlobalErrorHandler.InvalidCredentialsException;
@@ -15,7 +16,7 @@ import com.project.skill_share.entities.User;
 import com.project.skill_share.enums.EmailTYPE;
 import com.project.skill_share.enums.Role;
 import com.project.skill_share.repository.UserRepository;
-import com.project.skill_share.response.GenericResponse;
+import com.project.skill_share.response.ApiResponse;
 
 @Service
 public class AuthService {
@@ -30,23 +31,27 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
     
-    public 	GenericResponse registerUser(User user) {
-        if(userRepo.existsByUsername(user.getUsername())) {
+    public 	ApiResponse<?> registerUser(UserRegisterRequestDto requestDto) {
+        if(userRepo.existsByUsername(requestDto.getUsername())) {
         	throw new AlreadyExistsException("Username already taken!");
         }
-        if (userRepo.existsByEmail(user.getEmail())) {
+        if (userRepo.existsByEmail(requestDto.getEmail())) {
         	throw new AlreadyExistsException("Email already taken!");
         }
         
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = new User();
+        user.setUsername(requestDto.getUsername());
+        user.setEmail(requestDto.getEmail());
+        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        user.setContactNumber(requestDto.getContactNumber());
         user.setRoles(Role.USER);
         user.setEmailStatus(EmailTYPE.PENDING);
         userRepo.save(user);
         
-        return new GenericResponse(true, "User registered successfully.", null);
+        return new ApiResponse<>(true, "User registered successfully.", null);
     }
     
-    public GenericResponse loginUser(LoginForm loginForm) {
+    public ApiResponse<?> loginUser(LoginForm loginForm) {
         User user = userRepo.findByEmail(loginForm.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("Email not found!"));
 
@@ -61,7 +66,7 @@ public class AuthService {
            
           LoginResponseDto loginResponse = new LoginResponseDto(token,userDto);
           
-        return new GenericResponse(true,"Login Successfull",loginResponse);
+        return new ApiResponse<>(true,"Login Successfull",loginResponse);
     }
 
     private void validatePassword(User user, String Password) {

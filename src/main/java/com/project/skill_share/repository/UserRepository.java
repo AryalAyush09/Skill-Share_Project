@@ -2,6 +2,7 @@ package com.project.skill_share.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,7 @@ import com.project.skill_share.entities.User;
 
 
 @Repository
-  public interface UserRepository extends JpaRepository<User, Integer> {
+  public interface UserRepository extends JpaRepository<User, Long> {
 		boolean existsByUsername(String username);
 		boolean existsByEmail(String email);
 //		boolean existsByEmail(String email);
@@ -22,6 +23,7 @@ import com.project.skill_share.entities.User;
 
 	   @Query("SELECT u FROM User u WHERE u.id <> :userId")
 	    List<User> findAllExcept(@Param("userId") Long userId);
+//      	List<User> findAllById(Set<Long> userIds);
 	}
 
 

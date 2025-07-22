@@ -82,19 +82,20 @@
     
       <dependency>
         <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId> 
+        <artifactId>lombok</artifactId>
+          
         <scope>provided</scope>
     </dependency>
 
         <!-- PostgreSQL -->
-   <dependency>
+      <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
       <!--MySql-->
-     <!--   <dependency>
+      <!--  <dependency>
            <groupId>com.mysql</groupId>
            <artifactId>mysql-connector-j</artifactId>
            <scope>runtime</scope>

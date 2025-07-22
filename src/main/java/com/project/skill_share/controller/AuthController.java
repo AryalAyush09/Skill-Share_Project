@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.skill_share.DTO.UserRegisterRequestDto;
 import com.project.skill_share.entities.LoginForm;
-import com.project.skill_share.entities.User;
-import com.project.skill_share.response.GenericResponse;
+import com.project.skill_share.response.ApiResponse;
 import com.project.skill_share.services.AuthService;
 
 @RestController
@@ -22,12 +22,14 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<GenericResponse> registerUser(@RequestBody User user) {
-        return ResponseEntity.ok(authService.registerUser(user));
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequestDto request) {
+        authService.registerUser(request);
+        return ResponseEntity.ok("User registered successfully");
     }
 
+
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse> loginUser(@RequestBody LoginForm loginForm) {
+    public ResponseEntity<ApiResponse<?>> loginUser(@RequestBody LoginForm loginForm) {
         return ResponseEntity.ok(authService.loginUser(loginForm));
     }
 }

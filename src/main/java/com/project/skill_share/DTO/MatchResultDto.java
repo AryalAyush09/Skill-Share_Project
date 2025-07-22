@@ -10,7 +10,7 @@ public class MatchResultDto {
   private String profileImageUrl;
   private Set<MatchSkillDto> canTeach;
   private Set<MatchSkillDto> canLearn;
-  
+  	
 public Long getUserId() {
 	return userId;
 }

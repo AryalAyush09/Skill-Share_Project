@@ -1,6 +1,9 @@
 package com.project.skill_share.entities;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
     @Entity
