@@ -3,10 +3,12 @@ package com.project.skill_share.controller;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.skill_share.DTO.NotificationRequestDto;
 import com.project.skill_share.response.ApiResponse;
 import com.project.skill_share.services.NotificationService;
 
@@ -29,10 +31,10 @@ public class NotificationController {
 	    return notificationService.getUserNotification(userId, page, size);
 	}
 	
-	@Operation(summary = "Send a notification to a user")
+	@Operation(summary = "Manually Send a notification to a user")
 	@PostMapping("send/notifications")
-	public ApiResponse<?> sendNotification(Authentication auth, @RequestParam String message) {
-		Long userId = Long.parseLong(auth.getName());
-	    return notificationService.sendNotification(userId, message);
+	public ApiResponse<?> sendNotification(Authentication auth, @RequestBody NotificationRequestDto dto) {
+		Long senderId = Long.parseLong(auth.getName());
+	    return notificationService.sendNotification(senderId, dto.getMessage(), dto.getReceiverUserId());
 	}
 }

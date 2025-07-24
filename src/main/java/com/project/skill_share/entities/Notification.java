@@ -25,6 +25,9 @@ public class Notification {
 	private String message;
 	
 	@Column(nullable = false)
+	private Long senderId;
+
+	@Column(nullable = false)
 	boolean isRead = false;
 	
 	@CreationTimestamp
@@ -64,5 +67,17 @@ public class Notification {
 
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
+	}
+
+	public Long getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Long senderId) {
+		this.senderId = senderId;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 }

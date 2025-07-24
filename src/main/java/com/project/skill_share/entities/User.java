@@ -16,7 +16,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = true, unique = false)
+    @Column(nullable = false, unique = false)
     private String FullName;
     
     @Column(nullable = false, unique = true)
@@ -46,6 +46,12 @@ public class User {
     
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserCV userCV;
+    
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0;
+
+    @Column(name = "total_ratings")
+    private Integer totalRatings = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -152,4 +158,33 @@ public class User {
 		this.roles = roles;
 	}
 
+
+	public String getFullName() {
+		return FullName;
+	}
+
+
+	public void setFullName(String fullName) {
+		FullName = fullName;
+	}
+
+
+	public Double getAverageRating() {
+		return averageRating;
+	}
+
+
+	public void setAverageRating(Double averageRating) {
+		this.averageRating = averageRating;
+	}
+
+
+	public Integer getTotalRatings() {
+		return totalRatings;
+	}
+
+
+	public void setTotalRatings(Integer totalRatings) {
+		this.totalRatings = totalRatings;
+	}
 }

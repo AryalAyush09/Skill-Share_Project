@@ -33,21 +33,24 @@ public class NotificationService {
     	 this.messagingTemplate = messagingTemplate;
      }
      
-     public ApiResponse<?> sendNotification(Long userId, String message){
-    	   System.out.println("Inside sendNotification: userId=" + userId + ", message=" + message);
-    	 getUserById(userId);
+     public ApiResponse<?> sendNotification(Long senderId, String message, Long receiverId){
+    	   System.out.println("Inside sendNotification: userId=" + senderId + ", message=" + message);
+    	 getUserById(senderId);
+    	 getUserById(receiverId);
     	 
     	 if(message == null || message.isBlank()) {
     		 return new ApiResponse<>(false, "Notification messgae cannot be null", null);
     	 } 
-    	 System.out.println("Creating notification for userId = " + userId);
+    	 System.out.println("Creating notification for userId = " + senderId);
     	 Notification not = new Notification();
-    	 not.setUserId(userId);
+    	 not.setUserId(receiverId);
+    	 not.setSenderId(senderId);
     	 not.setMessage(message);
     	 not.setRead(false);
     	 
     	  notificationRepo.saveAndFlush(not);
-    	  messagingTemplate.convertAndSend("/topic/notifications/" + userId, message);
+    	  messagingTemplate.convertAndSend("/topic/notifications/" + receiverId, message);
+    	  
      return new ApiResponse<>(true, "Notification sent Successfully", not);
    }
      

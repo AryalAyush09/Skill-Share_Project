@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.project.skill_share.enums.Role;
+
 import java.security.Key;
 import java.util.Date;
 
@@ -23,18 +25,20 @@ public class JwtUtil {
 	    }
 	 
     // Token generate garne
-    public String generateToken(String email) {
+    public String generateToken(String userId, Role role) {
         return Jwts.builder()
-            .setSubject(email)
+            .setSubject(userId)
+            .claim("role", role.name())
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
     }
      
-    public String generateResetToken(String email) {
+    public String generateResetToken(String userId, Role role) {
         return Jwts.builder()
-            .setSubject(email)
+            .setSubject(userId)
+            .claim("role", role.name())
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // 10 minutes
             .signWith(key,SignatureAlgorithm.HS256)

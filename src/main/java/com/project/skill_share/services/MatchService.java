@@ -161,7 +161,7 @@ public class MatchService {
 			   dto.setUserId(otherUser.getId());
 			   dto.setUserName(otherUser.getUsername());
 			   dto.setCanLearn(matchInfo.canLearn);
-			   dto.setCanTeach(matchInfo.canLearn);
+			   dto.setCanTeach(matchInfo.canTeach);
 			   dto.setMatchingScore(matchInfo.matchingScore);
 			   dto.setProfileImageUrl(
 					    otherUser.getProfileImage() != null ? otherUser.getProfileImage().getImageUrl() : null);
@@ -333,10 +333,10 @@ public class MatchService {
 		matchUserRepo.save(matchUser);
 		
 		String notifMessage = currentUser.getUsername() + " sent you a skill match request.";
-		notificationService.sendNotification(targetUserId, notifMessage);
+		notificationService.sendNotification(targetUserId, notifMessage, currentUserId);
 	    
 		String senderMessage = "You have sent matching Request to " +  getUserById(targetUserId).getUsername();
-		notificationService.sendNotification(currentUserId, senderMessage);
+		notificationService.sendNotification(currentUserId, senderMessage, targetUserId);
 		
 		return new ApiResponse<>(true, "Match Request Sent Successfully", null);
 	}
@@ -363,7 +363,7 @@ public class MatchService {
 	        "Your skill match request was accepted." :
 	        "Your skill match request was rejected.";
 
-	    notificationService.sendNotification(requesterUserId, message);
+	    notificationService.sendNotification(requesterUserId, message, currentUserId);
 
 	     if(responseStatus == MatchStatus.CONFIRMED) {
 	        MatchUser reciprocal = new MatchUser();
