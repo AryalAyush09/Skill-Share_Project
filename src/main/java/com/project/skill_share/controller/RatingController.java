@@ -3,7 +3,6 @@ package com.project.skill_share.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +23,16 @@ public class RatingController {
     	  this.rateService = rateService;
       }
       
-      @Operation(summary = "Rate the mathced User")
+      @Operation(summary = "Rate the matched User")
       @PostMapping("/send/rating")
-      public ResponseEntity<?> ratingUser(@RequestBody RatingRequestDto dto){
-    	  return ResponseEntity.ok(rateService.submitRating(dto.getSessionId(), dto.getRaterId(), 
-    			   dto.getRateeId(), dto.getStars(), dto.getFeedback()));
+      public ResponseEntity<?> ratingUser(@RequestBody RatingRequestDto dto, Authentication auth) {
+          Long raterId = Long.parseLong(auth.getName()); // from JWT
+          return ResponseEntity.ok(rateService.submitRating(
+              dto.getSessionId(),
+              raterId,
+              dto.getRateeId(),
+              dto.getStars(),
+              dto.getFeedback()));
       }
       
       @Operation(summary = "Get rating from other user")

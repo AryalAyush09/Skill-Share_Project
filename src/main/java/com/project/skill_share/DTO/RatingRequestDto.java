@@ -2,7 +2,6 @@ package com.project.skill_share.DTO;
 
 public class RatingRequestDto {
     private Long sessionId;
-    private Long raterId;
     private Long rateeId;
     private int stars;
     private String feedback;
@@ -13,12 +12,6 @@ public class RatingRequestDto {
 	}
 	public void setSessionId(Long sessionId) {
 		this.sessionId = sessionId;
-	}
-	public Long getRaterId() {
-		return raterId;
-	}
-	public void setRaterId(Long raterId) {
-		this.raterId = raterId;
 	}
 	public Long getRateeId() {
 		return rateeId;

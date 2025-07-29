@@ -3,6 +3,7 @@ package com.project.skill_share.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,5 +73,12 @@ public class ImageController {
        public ResponseEntity<ApiResponse<?>> deleteCV(Authentication auth){
     	  Long userId  = Long.parseLong(auth.getName());
     	  return ResponseEntity.ok(imageService.deleteCV(userId));
+      }
+      
+      @Operation(summary = "Get current user's uploaded CV")
+      @GetMapping("/cv")
+      public ResponseEntity<ApiResponse<String>> getUserCV(Authentication auth) {
+          Long userId = Long.parseLong(auth.getName());
+          return ResponseEntity.ok(imageService.getCV(userId));
       }
 }

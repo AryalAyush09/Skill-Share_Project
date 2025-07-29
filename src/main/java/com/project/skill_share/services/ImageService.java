@@ -73,34 +73,53 @@ import java.io.IOException;
 		return new ApiResponse<>(true, "Profile image replaced successfully", dto);
 	}
 
-    public ApiResponse<String> uploadCV(MultipartFile file, Long userId){
-    	validatePdf(file);
-    	User user =getUserById(userId);
-  
-    	 String folder = "user-cvs";
-         String publicId = "cv_" + user.getId() + "_" + System.currentTimeMillis();
-         
-         try {
-        	 Map uploadResult =cloudinary.uploader().upload(file.getBytes(), Map.of(
-        			 "folder", folder,"public_id", publicId));
-        	 
-           String cvUrl = uploadResult.get("secure_url").toString();
-           String cvPublicId = uploadResult.get("public_id").toString();
+	public ApiResponse<String> uploadCV(MultipartFile file, Long userId) {
+	    validatePdf(file);
+	    User user = getUserById(userId);
 
-           UserCV userCV = new UserCV();
-           userCV.setCvUrl(cvUrl);
-           userCV.setPublicId(cvPublicId);
-           userCV.setUser(user);
+	    String folder = "user-cvs";
+	    String publicId = "cv_" + user.getId() + "_" + System.currentTimeMillis();
 
-           user.setUserCV(userCV);
-           
-        	 userRepo.save(user);
-        	 return new ApiResponse<>(true, "CV uploaded Successfully!", cvUrl);
-        	 
-         }catch(IOException e) {
-        	 throw new RuntimeException("Failed to upload the CV");
-         }  
-    }
+	    try {
+	        // Upload new CV to Cloudinary
+	        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), Map.of(
+	            "folder", folder,
+	            "public_id", publicId
+	        ));
+
+	        String cvUrl = uploadResult.get("secure_url").toString();
+	        String cvPublicId = uploadResult.get("public_id").toString();
+
+	        UserCV userCV = user.getUserCV(); // fetch existing CV
+
+	        if (userCV == null) {
+	            // No existing CV  create new
+	            userCV = new UserCV();
+	            userCV.setUser(user);
+	        } else {
+	            //  Existing CV found  delete old file from Cloudinary
+	            try {
+	                cloudinary.uploader().destroy(userCV.getPublicId(), Map.of());
+	            } catch (Exception e) {
+	                System.out.println("Failed to delete old CV from Cloudinary: " + e.getMessage());
+	            }
+	        }
+
+	        userCV.setCvUrl(cvUrl);
+	        userCV.setPublicId(cvPublicId);
+
+	        user.setUserCV(userCV);
+	        userCV.setUser(user);
+	        userCvRepo.save(userCV);
+
+	        return new ApiResponse<>(true, "CV uploaded Successfully!", cvUrl);
+
+	    } catch (IOException e) {
+	        throw new RuntimeException("Failed to upload the CV");
+	    }
+	}
+
+
 
     public ApiResponse<String> replaceCV(MultipartFile file, Long userId){
 	   validatePdf(file);
@@ -250,5 +269,17 @@ import java.io.IOException;
 		dto.setCreatedAt(userImg.getCreatedAt());
 		return dto;
 	}
+	  
+	  public ApiResponse<String> getCV(Long userId) {
+		    User user = getUserById(userId);
+
+		    UserCV userCV = user.getUserCV();
+		    if (userCV == null) {
+		        return new ApiResponse<>(false, "CV not found for the user", null);
+		    }
+
+		    return new ApiResponse<>(true, "CV fetched successfully", userCV.getCvUrl());
+		}
+
 }
 

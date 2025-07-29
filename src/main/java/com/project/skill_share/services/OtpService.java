@@ -2,6 +2,8 @@ package com.project.skill_share.services;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.project.skill_share.GlobalErrorHandler.EmailAlreadyVerifiedException;
 import com.project.skill_share.GlobalErrorHandler.EmailNotVerifiedException;
@@ -117,11 +119,35 @@ public class OtpService {
 	    }
 	    
 	    if (otpPurpose == OtpPurpose.RESET_PASSWORD) {
-	        String resetToken = jwtUtil.generateResetToken(user.getEmail());
+	        String resetToken = jwtUtil.generateResetToken(user.getEmail(), user.getRoles());
 	        return new GenericResponse(true, "Reset token generated", resetToken);
 	    }
 	    
 	    return new GenericResponse(false, "Unhandled OTP purpose", null);
 	}
+	
+	@Transactional
+	public GenericResponse resetPassword(String token, String newPassword) {
+	    String email;
+	    try {
+	        email = jwtUtil.extractUserId(token);  // Email from reset token
+	    } catch (Exception e) {
+	        throw new InvalidOtpException("Invalid or expired reset token.");
+	    }
+
+	    User user = userRepo.findByEmail(email)
+	            .orElseThrow(() -> new ResourceNotFoundException("User not found for token."));
+
+	    if (!jwtUtil.validateToken(token, user.getEmail())) {
+	        throw new InvalidOtpException("Reset token is not valid anymore.");
+	    }
+
+	    String encodedPassword = new BCryptPasswordEncoder().encode(newPassword);
+	    user.setPassword(encodedPassword);
+	    userRepo.save(user);
+
+	    return new GenericResponse(true, "Password reset successfully.", null);
+	}
+
 }
 

@@ -25,7 +25,7 @@ public class PasswordService {
    
    @Transactional 
    public GenericResponse resetPassword(String ResetToken, String newPassword) {
-	   String email = jwtUtil.extractUsername(ResetToken);
+	   String email = jwtUtil.extractUserId(ResetToken);
 	   boolean isValid = jwtUtil.validateToken(ResetToken, email);
 	   
 	   if (!isValid) {

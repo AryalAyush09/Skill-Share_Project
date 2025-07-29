@@ -40,6 +40,7 @@ public class AuthService {
         }
         
         User user = new User();
+        user.setFullName(requestDto.getFullName());
         user.setUsername(requestDto.getUsername());
         user.setEmail(requestDto.getEmail());
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
@@ -58,7 +59,7 @@ public class AuthService {
         validatePassword(user, loginForm.getPassword());
         validateEmailVerified(user);
 
-         String token = jwtUtil.generateToken(String.valueOf(user.getId()));
+         String token = jwtUtil.generateToken(String.valueOf(user.getId()), user.getRoles());
 //        String token = jwtUtil.generateToken(user.getId().toString());
         
            LoginUserDto userDto = new LoginUserDto(user.getId(),user.getEmail(),	
@@ -69,11 +70,18 @@ public class AuthService {
         return new ApiResponse<>(true,"Login Successfull",loginResponse);
     }
 
-    private void validatePassword(User user, String Password) {
-        if (!passwordEncoder.matches(Password, user.getPassword())) {
-            throw new InvalidCredentialsException("Incorrect password!");
+    private void validatePassword(User user, String inputPassword) {
+        System.out.println("Raw input password: " + inputPassword);
+        System.out.println("Encoded password from DB: " + user.getPassword());
+        
+        boolean matched = passwordEncoder.matches(inputPassword, user.getPassword());
+        System.out.println("Password matched? " + matched);
+
+        if (!matched) {
+            throw new InvalidCredentialsException("Incorrect nothingcrenditail");
         }
     }
+
 
     private void validateEmailVerified(User user) {
         if (user.getEmailStatus() != EmailTYPE.VERIFIED) {

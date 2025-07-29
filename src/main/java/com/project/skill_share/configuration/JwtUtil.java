@@ -2,7 +2,6 @@ package com.project.skill_share.configuration;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,60 +12,59 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-	
-	private final Key key;
 
-//	private final String secret = "mysecretkey123456789012345678901234"; // at least 32 chars
-//	private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
+    private final Key key;
 
-	 public JwtUtil(@Value("${jwt.secret}") String secret) {
-//		   System.out.println("JWT Secret: " + secret);
-	        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-	    }
-	 
-    // Token generate garne
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    // Login token generator
     public String generateToken(String userId, Role role) {
         return Jwts.builder()
-            .setSubject(userId)
-            .claim("role", role.name())
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-            .signWith(key, SignatureAlgorithm.HS256)
-            .compact();
+                .setSubject(userId)
+                .claim("role", role.name())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
-     
-    public String generateResetToken(String userId, Role role) {
+
+    // Reset token generator
+    public String generateResetToken(String email, Role role) {
         return Jwts.builder()
-            .setSubject(userId)
-            .claim("role", role.name())
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // 10 minutes
-            .signWith(key,SignatureAlgorithm.HS256)
-            .compact();
+                .setSubject(email)
+                .claim("role", role.name())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // 10 min
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    // Username extract garne
-    public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token).getBody().getSubject();
+    public String extractUserId(String token) {
+        return extractAllClaims(token).getSubject();
     }
 
-    // Token expire bha ki check garne
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
     public boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    public boolean validateToken(String token, String userId) {
+        return (extractUserId(token).equals(userId) && !isTokenExpired(token));
+    }
+
+    private Claims extractAllClaims(String token) {
+        Claims claims = Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
             .parseClaimsJws(token)
-            .getBody()
-            .getExpiration();
-        return expiration.before(new Date());
+            .getBody();
+        System.out.println("JWT Claims: " + claims);
+        return claims;
     }
 
-    // Token valid cha ki check garne
-    public boolean validateToken(String token, String userId) {
-        String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(userId) && !isTokenExpired(token));
-    }
 }

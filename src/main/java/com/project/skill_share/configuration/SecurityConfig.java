@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -29,29 +30,54 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())  // CSRF disable gareko (API use gareko bhaye)
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config add gareko
+//            .authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/api/login", 
+//                		"/api/register",
+//                		"/api/send/otp/**",
+//                		"/api/verify/otp/**",
+//                		"/api/user/my_skills",
+//                		"/api/**",
+//                		  "/v3/api-docs/**",
+//                          "/swagger-ui/**",
+//                          "/swagger-ui.html")
+//                .permitAll()  
+//                .anyRequest().authenticated()  // arko sab endpoint ma authentication mandatory
+//            )
+            
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/login", 
-                		"/api/register",
-                		"/api/send/otp/**",
-                		"/api/verify/otp/**",
-                		"/api/user/my_skills",
-                		"/api/**",
-                		  "/v3/api-docs/**",
-                          "/swagger-ui/**",
-                          "/swagger-ui.html")
-                .permitAll()  
-                .anyRequest().authenticated()  // arko sab endpoint ma authentication mandatory
-            )
+            	    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            	    .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+            	    .requestMatchers(
+            	        "/api/login",
+            	        "/api/register",
+            	        "/api/send/otp/{purpose}",
+            	        "/api/verify/otp/{purpose}",
+            	        "api/reset/password",
+            	        "/v3/api-docs/**",
+            	        "/swagger-ui/**",
+            	        "/swagger-ui.html",
+            	        "/swagger-resources/**",
+            	        "/ws-notifications/**",
+            	        "/webjars/**"
+            	    ).permitAll()
+            	    .anyRequest().authenticated()
+            	)
+
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // session state nai nadine (JWT use gareko bhaye)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // JwtFilter lai username-password filter agadi run garne
 
         return http.build();
     }
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000",
-        		 "http://localhost:5173","https://c843-2400-1a00-bb20-290d-ced-7e18-eeb-c523.ngrok-free.app/"));
+        		 "http://localhost:5173",
+        		 "http://127.0.0.1:3000",
+        		 "https://c843-2400-1a00-bb20-290d-ced-7e18-eeb-c523.ngrok-free.app/",
+        		 "http://localhost:5174"));
+        
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // If using cookies, otherwise can skip

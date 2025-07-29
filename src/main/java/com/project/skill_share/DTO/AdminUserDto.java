@@ -5,6 +5,7 @@ import com.project.skill_share.enums.EmailTYPE;
 public class AdminUserDto {
   private Long id;
   private String username;
+  private  String fullName;
   private String contactNumber;
   private String email;
   private EmailTYPE emailStatus;
@@ -46,6 +47,12 @@ public String getProfilePhoto() {
 }
 public void setProfilePhoto(String profilePhoto) {
 	this.profilePhoto = profilePhoto;
+}
+public String getFullName() {
+	return fullName;
+}
+public void setFullName(String fullName) {
+	this.fullName = fullName;
 }
   
   

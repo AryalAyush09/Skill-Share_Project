@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 import com.project.skill_share.DTO.MatchRequestDto;
+import com.project.skill_share.DTO.MatchResponseDto;
+import com.project.skill_share.DTO.MatchResponseFullDto;
 import com.project.skill_share.DTO.MatchResultDto;
 import com.project.skill_share.DTO.MatchSkillDto;
+import com.project.skill_share.DTO.NotificationRequestDto;
 import com.project.skill_share.GlobalErrorHandler.ResourceNotFoundException;
 import com.project.skill_share.GlobalErrorHandler.UnauthorizedException;
 import com.project.skill_share.GlobalErrorHandler.UserNotFoundException;
@@ -29,6 +33,8 @@ import com.project.skill_share.repository.SkillRepository;
 import com.project.skill_share.repository.UserRepository;
 import com.project.skill_share.repository.UserSkillRepository;
 import com.project.skill_share.response.ApiResponse;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class MatchService {
@@ -54,7 +60,8 @@ public class MatchService {
 		Set<MatchSkillDto> canLearn;
 		int matchingScore;
 		
-		 MatchInfo(Set<MatchSkillDto> canTeach, Set<MatchSkillDto> canLearn, int matchingScore) {
+		 MatchInfo(Set<MatchSkillDto> canTeach, Set<MatchSkillDto> canLearn,
+				 int matchingScore) {
 	            this.canTeach = canTeach;
 	            this.canLearn = canLearn;
 	            this.matchingScore = matchingScore;
@@ -163,6 +170,9 @@ public class MatchService {
 			   dto.setCanLearn(matchInfo.canLearn);
 			   dto.setCanTeach(matchInfo.canTeach);
 			   dto.setMatchingScore(matchInfo.matchingScore);
+			   dto.setRating(otherUser.getAverageRating() != null ?
+					   otherUser.getAverageRating() : 0.0);
+
 			   dto.setProfileImageUrl(
 					    otherUser.getProfileImage() != null ? otherUser.getProfileImage().getImageUrl() : null);
 			   matchedUsers.add(dto);
@@ -177,40 +187,46 @@ public class MatchService {
 		return new ApiResponse<>(true, "Matched Successfully", matchedUsers);
 	}
    
-   public ApiResponse<?> getRequestDetail(Long matchId, Long viewerUserId){
-	   MatchUser matchUser = matchUserRepo.findById(matchId)
-			   .orElseThrow(() -> new UserNotFoundException("Match not Found"));
-	   
-	   if(!matchUser.getCurrentUserId().equals(viewerUserId) && 
-			   !matchUser.getOtherUserId().equals(matchId)) {
-		   throw new UnauthorizedException("You are not authorized to view the match");
-	   }
-	  Long matchUserId =  matchUser.getCurrentUserId().equals(viewerUserId) ?
-			  matchUser.getOtherUserId():
-				  matchUser.getCurrentUserId();
-	  
-	  User viewerUser = getUserById(viewerUserId);
-	  User matchedUser = getUserById(matchId);
-	  
-	  List<User_Skill> viewerHaveSkills = userSkillRepo.findByUserAndType(viewerUser, SkillType.HAVE);
-	  List<User_Skill> viewerNeedSkills = userSkillRepo.findByUserAndType(viewerUser, SkillType.NEED);
-	  
-	  MatchInfo matchInfo = calculateMatchInfo(viewerUser, matchedUser, viewerHaveSkills, viewerNeedSkills);
-	  
-	    if (matchInfo == null) {
-            return new ApiResponse<>(false, "No matching skills found between users", null);
-        }
-	    
-	    MatchResultDto dto = new MatchResultDto();
-        dto.setUserId(matchedUser.getId());
-        dto.setUserName(matchedUser.getUsername());
-        dto.setCanTeach(matchInfo.canTeach);
-        dto.setCanLearn(matchInfo.canLearn);
-        dto.setMatchingScore((int) matchUser.getMatchingScore());
-        dto.setProfileImageUrl(matchedUser.getProfileImage() != null ? matchedUser.getProfileImage().getImageUrl() : null);
+   public ApiResponse<?> getRequestDetail(Long matchId, Long viewerUserId) {
+	    MatchUser matchUser = matchUserRepo.findById(matchId)
+	        .orElseThrow(() -> new UserNotFoundException("Match not Found"));
 
-        return new ApiResponse<>(true, "Match details fetched", dto);
-    }
+	  
+	    if (!matchUser.getCurrentUserId().equals(viewerUserId) &&
+	        !matchUser.getOtherUserId().equals(viewerUserId)) {
+	        throw new UnauthorizedException("You are not authorized to view the match");
+	    }
+
+	    Long matchUserId = matchUser.getCurrentUserId().equals(viewerUserId)
+	        ? matchUser.getOtherUserId()
+	        : matchUser.getCurrentUserId();
+
+	    User viewerUser = getUserById(viewerUserId);
+	    User matchedUser = getUserById(matchUserId);
+
+	    List<User_Skill> viewerHaveSkills = userSkillRepo.findByUserAndType(viewerUser, SkillType.HAVE);
+	    List<User_Skill> viewerNeedSkills = userSkillRepo.findByUserAndType(viewerUser, SkillType.NEED);
+
+	    MatchInfo matchInfo = calculateMatchInfo(viewerUser, matchedUser, viewerHaveSkills, viewerNeedSkills);
+	    if (matchInfo == null) {
+	        return new ApiResponse<>(false, "No matching skills found between users", null);
+	    }
+
+	    MatchResultDto dto = new MatchResultDto();
+	    dto.setUserId(matchedUser.getId());
+	    dto.setUserName(matchedUser.getUsername());
+	    dto.setCanTeach(matchInfo.canTeach);
+	    dto.setCanLearn(matchInfo.canLearn);
+	    dto.setMatchingScore((int) matchUser.getMatchingScore());
+	    dto.setRating(
+	    	    matchedUser.getAverageRating() != null ? matchedUser.getAverageRating().doubleValue() : 0.0);
+
+	    dto.setProfileImageUrl(
+	        matchedUser.getProfileImage() != null ? matchedUser.getProfileImage().getImageUrl() : null
+	    );
+
+	    return new ApiResponse<>(true, "Match details fetched", dto);
+	}
    
    private MatchInfo calculateMatchInfo(User currentUser, User otherUser, List<User_Skill> currentUserHaveSkills, List<User_Skill> currentUserNeedSkills) {
        List<User_Skill> otherHaveSkills = userSkillRepo.findByUserAndType
@@ -300,50 +316,58 @@ public class MatchService {
 				.collect(Collectors.toSet());
 	}
 	
-	
-	public ApiResponse<?> sendRequest(Long currentUserId, MatchRequestDto dto){
-         User currentUser = getUserById(currentUserId);
-        
-		Long targetUserId = dto.getTargetUserId();
-		if (targetUserId == null) {
-		    return new ApiResponse<>(false, "Target userId must not be null", null);
-		}
-
-		float matchingScore = dto.getMatchingScore();
-		
-		if(currentUserId.equals(targetUserId)) {
-			return new ApiResponse<>(false, "you cant send request to yourself", null);	
-		}
-		 boolean exists = matchUserRepo.existsConfirmedorPendingMatchBetweenUsers(currentUserId, targetUserId);
-		 if(exists) {
-			 return new ApiResponse<>(false, "Match request already exists", null);
-		 }
-		 System.out.println("Request sent by userId: " + currentUserId);
-		 System.out.println("Target userId: " + dto.getTargetUserId());
-
-		 getUserById(currentUserId);
-	     getUserById(targetUserId);
-		
-		MatchUser matchUser = new MatchUser();
-		matchUser.setCurrentUserId(currentUserId);
-		matchUser.setOtherUserId(targetUserId);
-		matchUser.setMatchingScore(matchingScore);
-		matchUser.setMatchStatus(MatchStatus.PENDING);
-		
-		matchUserRepo.save(matchUser);
-		
-		String notifMessage = currentUser.getUsername() + " sent you a skill match request.";
-		notificationService.sendNotification(targetUserId, notifMessage, currentUserId);
+	@Transactional
+	public ApiResponse<?> sendRequest(Long currentUserId, MatchRequestDto dto) {
+	    User currentUser = getUserById(currentUserId);
 	    
-		String senderMessage = "You have sent matching Request to " +  getUserById(targetUserId).getUsername();
-		notificationService.sendNotification(currentUserId, senderMessage, targetUserId);
-		
-		return new ApiResponse<>(true, "Match Request Sent Successfully", null);
-	}
-		
+	    Long targetUserId = dto.getTargetUserId();
+	    if (targetUserId == null) {
+	        return new ApiResponse<>(false, "Target userId must not be null", null);
+	    }
+
+	    if (currentUserId.equals(targetUserId)) {
+	        return new ApiResponse<>(false, "You can't send request to yourself", null);
+	    }
+
+	    boolean exists = matchUserRepo.existsConfirmedorPendingMatchBetweenUsers(
+	    	    currentUserId, targetUserId, MatchStatus.CONFIRMED, MatchStatus.PENDING);
+
+	    if (exists) {
+	        return new ApiResponse<>(false, "Match request already exists", null);
+	    }
+
+	    float matchingScore = dto.getMatchingScore();
+	    User targetUser = getUserById(targetUserId); // fetched once
+
+	    MatchUser matchUser = new MatchUser();
+	    matchUser.setCurrentUserId(currentUserId);
+	    matchUser.setOtherUserId(targetUserId);
+	    matchUser.setMatchingScore(matchingScore);
+	    matchUser.setMatchStatus(MatchStatus.PENDING);
+
+	    matchUserRepo.save(matchUser);
+
+	    // Notification to receiver
+	    NotificationRequestDto receiverDto = new NotificationRequestDto();
+	    receiverDto.setMessage(currentUser.getUsername() + " sent you a skill match request.");
+	    receiverDto.setReceiverUserId(targetUserId);
+
+	    notificationService.sendNotification(currentUserId, receiverDto);
+
+
+	    // Optional: Notify sender
+	    NotificationRequestDto senderDto = new NotificationRequestDto();
+	    senderDto.setMessage("You have sent a matching request to " + targetUser.getUsername());
+	    senderDto.setReceiverUserId(currentUserId);
+
+	    notificationService.sendNotification(currentUserId, senderDto);
+
+
+	    // Return matchId so UI can directly use it
+	    return new ApiResponse<>(true, "Match Request Sent Successfully", matchUser.getId());
+	}	
 
 	public ApiResponse<?> respondToRequest(Long currentUserId, Long requesterUserId, MatchStatus responseStatus) {
-	  
 	    if (responseStatus != MatchStatus.CONFIRMED && responseStatus != MatchStatus.REJECTED) {
 	        return new ApiResponse<>(false, "Invalid response status", null);
 	    }
@@ -355,25 +379,84 @@ public class MatchService {
 	    if (matchRequest == null) {
 	        return new ApiResponse<>(false, "No pending match request found", null);
 	    }
-	    
+
 	    matchRequest.setMatchStatus(responseStatus);
 	    matchUserRepo.save(matchRequest);
-	    
+
 	    String message = responseStatus == MatchStatus.CONFIRMED ?
-	        "Your skill match request was accepted." :
-	        "Your skill match request was rejected.";
+	    	    "Your skill match request was accepted." :
+	    	    "Your skill match request was rejected.";
 
-	    notificationService.sendNotification(requesterUserId, message, currentUserId);
+	    	NotificationRequestDto notifDto = new NotificationRequestDto();
+	    	notifDto.setReceiverUserId(requesterUserId);
+	    	notifDto.setMessage(message);
 
-	     if(responseStatus == MatchStatus.CONFIRMED) {
-	        MatchUser reciprocal = new MatchUser();
-	        reciprocal.setCurrentUserId(currentUserId);
-	        reciprocal.setOtherUserId(requesterUserId);
-	        reciprocal.setMatchingScore(matchRequest.getMatchingScore());
-	        reciprocal.setMatchStatus(MatchStatus.CONFIRMED);
-	        matchUserRepo.save(reciprocal);
+	    	notificationService.sendNotification(currentUserId, notifDto);
+
+	    if (responseStatus == MatchStatus.CONFIRMED) {
+	        Optional<MatchUser> reciprocalOpt = matchUserRepo.findByCurrentUserIdAndOtherUserId(
+	            currentUserId, requesterUserId);
+
+	        if (reciprocalOpt.isPresent()) {
+	            MatchUser reciprocal = reciprocalOpt.get();
+	            reciprocal.setMatchStatus(MatchStatus.CONFIRMED);
+	            matchUserRepo.save(reciprocal);
+	        } else {
+	            MatchUser reciprocal = new MatchUser();
+	            reciprocal.setCurrentUserId(currentUserId);
+	            reciprocal.setOtherUserId(requesterUserId);
+	            reciprocal.setMatchingScore(matchRequest.getMatchingScore());
+	            reciprocal.setMatchStatus(MatchStatus.CONFIRMED);
+	            matchUserRepo.save(reciprocal);
+	        }
 	    }
-	    return new ApiResponse<>(true, "Request " + responseStatus.name().toLowerCase() + " successfully", null);
+
+	    MatchResponseFullDto responseDto = new MatchResponseFullDto(
+	        matchRequest.getId(),
+	        matchRequest.getCurrentUserId(),
+	        matchRequest.getOtherUserId(),
+	        matchRequest.getMatchingScore(),
+	        matchRequest.getMatchStatus());
+
+	    return new ApiResponse<>(true, "Request " + responseStatus.name().toLowerCase() + " successfully", responseDto);
 	}
+	
+	public boolean canChat(Long userA, Long userB) {
+	    // Returns true only if users have a confirmed match relationship
+	    return matchUserRepo.existsByCurrentUserIdAndOtherUserIdAndMatchStatus(userA, userB, MatchStatus.CONFIRMED)
+	        || matchUserRepo.existsByCurrentUserIdAndOtherUserIdAndMatchStatus(userB, userA, MatchStatus.CONFIRMED);
+	}
+
+	public List<MatchResultDto> getYourMatches(Long userId) {
+		 User currentUser = getUserById(userId);
+	    List<MatchUser> matches = matchUserRepo.findConfirmedMatches(userId, MatchStatus.CONFIRMED);
+
+	    List<MatchResultDto> result = new ArrayList<>();
+
+	    for (MatchUser match : matches) {
+	        Long matchedUserId = match.getCurrentUserId().equals(userId) ? match.getOtherUserId() : match.getCurrentUserId();
+	        User matchedUser = getUserById(matchedUserId);
+
+	        // Get skills for the current user and matched user to calculate canTeach/canLearn
+	        List<User_Skill> currentUserHave = userSkillRepo.findByUserAndType(currentUser, SkillType.HAVE);
+	        List<User_Skill> currentUserNeed = userSkillRepo.findByUserAndType(currentUser, SkillType.NEED);
+
+	        MatchInfo matchInfo = calculateMatchInfo(currentUser, matchedUser, currentUserHave, currentUserNeed);
+
+	        MatchResultDto dto = new MatchResultDto();
+	        dto.setUserId(matchedUser.getId());
+	        dto.setUserName(matchedUser.getUsername());
+	        dto.setProfileImageUrl(matchedUser.getProfileImage() != null ? matchedUser.getProfileImage().getImageUrl() : null);
+	        dto.setMatchingScore((int) match.getMatchingScore());
+	        dto.setRating(matchedUser.getAverageRating());
+	        dto.setCanTeach(matchInfo.canTeach);
+	        dto.setCanLearn(matchInfo.canLearn);
+
+	        result.add(dto);
+	    }
+
+	    return result;
+	}
+
 
 }

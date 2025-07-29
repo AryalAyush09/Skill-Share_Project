@@ -1,6 +1,7 @@
 package com.project.skill_share.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +18,7 @@ public class User {
     private Long id;
     
     @Column(nullable = false, unique = false)
-    private String FullName;
+    private String fullName;
     
     @Column(nullable = false, unique = true)
     private String username;
@@ -31,20 +32,20 @@ public class User {
     @Column(nullable = false)
     private String password;
     
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserImage> images;
     
-    @Column(name = "github_link")
-    private String gitHub;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialLink> socialLinks = new ArrayList<>();
     
     @OneToOne
     @JoinColumn(name = "profile_image_id")
     private UserImage profileImage;
     
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private UserCV userCV;
     
     @Column(name = "average_rating")
@@ -128,20 +129,12 @@ public class User {
 		this.images = images;
 	}
 
-	public String getGitHub() {
-		return gitHub;
-	}
-
 	public UserImage getProfileImage() {
 		return profileImage;
 	}
 
 	public void setProfileImage(UserImage profileImage) {
 		this.profileImage = profileImage;
-	}
-
-	public void setGitHub(String gitHub) {
-		this.gitHub = gitHub;
 	}
 
 	public Role getRoles() {
@@ -160,12 +153,22 @@ public class User {
 
 
 	public String getFullName() {
-		return FullName;
+		return fullName;
 	}
 
 
 	public void setFullName(String fullName) {
-		FullName = fullName;
+		this.fullName = fullName;
+	}
+
+
+	public List<SocialLink> getSocialLinks() {
+		return socialLinks;
+	}
+
+
+	public void setSocialLinks(List<SocialLink> socialLinks) {
+		this.socialLinks = socialLinks;
 	}
 
 
@@ -187,4 +190,5 @@ public class User {
 	public void setTotalRatings(Integer totalRatings) {
 		this.totalRatings = totalRatings;
 	}
+
 }

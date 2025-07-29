@@ -17,16 +17,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 @Entity
 @Table(name = "message_box")
-
 public class MessageBox {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Now read-only field
     @Column(name = "sender_id", nullable = false, insertable = false, updatable = false)
     private Long senderId;
 
@@ -34,7 +33,7 @@ public class MessageBox {
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
-  
+    // Same here
     @Column(name = "receiver_id", nullable = false, insertable = false, updatable = false)
     private Long receiverId;
 
@@ -53,7 +52,7 @@ public class MessageBox {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-    
+
 public Long getId() {
 	return id;
 }

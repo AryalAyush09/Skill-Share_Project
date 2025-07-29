@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.project.skill_share.DTO.RatingResponseDto;
 import com.project.skill_share.entities.Rating;
@@ -17,6 +18,8 @@ import com.project.skill_share.repository.SessionRepository;
 import com.project.skill_share.repository.UserRepository;
 import com.project.skill_share.response.ApiResponse;
 
+
+@Service
 public class RatingService {
 	
   private final RatingRepository ratingRepo;
@@ -35,15 +38,24 @@ public class RatingService {
 	  if(ses == null) {
 		  return new ApiResponse<>(false, "Session not found", null);
 	  }
+	  Long user1Id = ses.getUser1Id();
+	  Long user2Id = ses.getUser2Id();
+
+	  if (!(
+	      (user1Id.equals(raterId) && user2Id.equals(rateeId)) ||
+	      (user2Id.equals(raterId) && user1Id.equals(rateeId))
+	  )) {
+	      return new ApiResponse<>(false, "Rater and ratee are not part of the given session", null);
+	  }
 	  
-	  boolean exists = ratingRepo.existsBySessionIdAndRaterUserId(sessionId);
+	  boolean exists = ratingRepo.existsBySessionIdAndRaterUserId(sessionId, raterId);
 	  if(exists){
 		  return new ApiResponse<>(false, "Rating already submitted!!", null);
 	  }
 	  Rating rating = new Rating();
 	  rating.setFeedback(feedback);
 	  rating.setRateeUserId(rateeId);
-	  rating.setRaterUserid(raterId);
+	  rating.setRaterUserId(raterId);
 	  rating.setSession(ses);
 	  rating.setStars(stars);
 	  
@@ -69,15 +81,21 @@ public class RatingService {
       Page<Rating> ratingPage = ratingRepo.findByRateeUserIdOrderByCreatedAtDesc(userId, pageable);
 
       List<RatingResponseDto> dtos = ratingPage.getContent().stream().map(rating -> {
-          User rater = userRepo.findById(rating.getRaterUserid()).orElse(null);
-          String raterName = rater != null ? rater.getUsername() : "Unknown";
-          String imageUrl = rater != null && rater.getProfileImage() != null
-                  ? rater.getProfileImage().getImageUrl() : null;
-          	
-          return new RatingDto
-        		  (raterName, imageUrl, rating.getStars(), rating.getFeedback(), 
-        				  rating.getCreatedAt());
-      }).collect(Collectors.toList());
+    	    User rater = userRepo.findById(rating.getRaterUserId()).orElse(null);
+    	    String raterName = rater != null ? rater.getUsername() : "Unknown";
+    	    String imageUrl = rater != null && rater.getProfileImage() != null
+    	            ? rater.getProfileImage().getImageUrl()
+    	            : null;
+    	    System.out.println("Fetching ratings for userId = " + userId);
+
+    	    return new RatingResponseDto(
+    	        raterName,
+    	        imageUrl,
+    	        rating.getStars(),
+    	        rating.getFeedback(),
+    	        rating.getCreatedAt()
+    	    );
+    	}).collect(Collectors.toList());
 
       return new ApiResponse<>(true, "Ratings fetched", dtos);
   }

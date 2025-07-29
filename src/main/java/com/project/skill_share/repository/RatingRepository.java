@@ -9,10 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.project.skill_share.entities.Rating;
 
 public interface RatingRepository extends JpaRepository<Rating, Long>{
-	boolean existsBySessionIdAndRaterUserId(Long sessionId);
+	boolean existsBySessionIdAndRaterUserId(Long sessionId, Long raterUserId);
 
 	List<Rating> findByRateeUserId(Long userId);
 	
 	Page<Rating> findByRateeUserIdOrderByCreatedAtDesc(Long rateeUserId, Pageable pageable);
-
+	
 }

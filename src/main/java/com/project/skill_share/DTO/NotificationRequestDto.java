@@ -7,7 +7,7 @@ public class NotificationRequestDto {
 	    
 		public Long getReceiverUserId() {
 			return receiverUserId;
-		}
+		}	
 		public void setReceiverUserId(Long receiverUserId) {
 			this.receiverUserId = receiverUserId;
 		}

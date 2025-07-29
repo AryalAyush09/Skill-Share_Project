@@ -4,30 +4,44 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table (name = "ratings")
+@Table(
+	    name = "ratings",
+	    uniqueConstraints = 
+	{@UniqueConstraint(columnNames = {"session_id", "rater_user_id"}) }
+	    )
+
+
 public class Rating {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "session_id")
 	private Session session;
 	
-	private Long raterUserid;
+	@Column(name = "rater_user_id")
+	private Long raterUserId;
+
+	@Column(name = "ratee_user_id")
 	private Long rateeUserId;
-	
+
 	private int stars;
+	
+	@Column(columnDefinition = "TEXT")  
 	private String feedback;
 	
 	@CreationTimestamp
@@ -49,12 +63,13 @@ public class Rating {
 		this.session = session;
 	}
 
-	public Long getRaterUserid() {
-		return raterUserid;
+
+	public Long getRaterUserId() {
+		return raterUserId;
 	}
 
-	public void setRaterUserid(Long raterUserid) {
-		this.raterUserid = raterUserid;
+	public void setRaterUserId(Long raterUserId) {
+		this.raterUserId = raterUserId;
 	}
 
 	public Long getRateeUserId() {

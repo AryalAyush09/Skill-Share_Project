@@ -6,6 +6,8 @@ public class UserResponseDto {
 	
   private Long id;
   
+  private String fullName;
+  
   private String userName;
   
   private String email;
@@ -14,7 +16,11 @@ public class UserResponseDto {
   
   private String cvUrl;
   
-  private List<ImageDto> images;	
+  private double rating;
+  
+  private List<ImageDto> images;
+  
+  private List<SocialLinkDto> socialLinks;
 
 public Long getId() {
 	return id;
@@ -60,8 +66,31 @@ public void setCvUrl(String cvUrl) {
 	this.cvUrl = cvUrl;
 }
 
+public String getFullName() {
+	return fullName;
+}
+
+public void setFullName(String fullName) {
+	this.fullName = fullName;
+}
+
 public void setImages(List<ImageDto> images) {
 	this.images = images;
 }
 
+public double getRating() {
+	return rating;
+}
+
+public void setRating(double rating) {
+	this.rating = rating;
+}
+
+public List<SocialLinkDto> getSocialLinks() {
+	return socialLinks;
+}
+
+public void setSocialLinks(List<SocialLinkDto> socialLinks) {
+	this.socialLinks = socialLinks;
+}
 }

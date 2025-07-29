@@ -1,26 +1,41 @@
 package com.project.skill_share.configuration;
-
+	
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+	
+	@Configuration
+	@EnableWebSocketMessageBroker
+	public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+	
+		  private final JwtUtil jwtUtil;
 
-@Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Enable simple broker for topic destinations (in-memory)
-        config.enableSimpleBroker("/topic");
-        // Prefix for sending messages from client to server
-        config.setApplicationDestinationPrefixes("/app");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // WebSocket endpoint clients will connect to
-        registry.addEndpoint("/ws-notifications").withSockJS();
-    }
-}
+		    public WebSocketConfig(JwtUtil jwtUtil) {
+		        this.jwtUtil = jwtUtil;
+		    }
+		    
+		@Override
+		 public void configureClientInboundChannel(ChannelRegistration registration) {
+		        registration.interceptors(new JwtChannelInterceptor(jwtUtil));
+		    }
+		
+	    @Override
+	    public void configureMessageBroker(MessageBrokerRegistry config) {
+	        // Enable simple broker for topic destinations (in-memory)
+	        config.enableSimpleBroker("/topic", "queue");
+	        // Prefix for sending messages from client to server
+	        config.setApplicationDestinationPrefixes("/app");
+	        config.setUserDestinationPrefix("/user");	
+	    }
+	
+	    @Override
+	    public void registerStompEndpoints(StompEndpointRegistry registry) {
+	        // WebSocket endpoint clients will connect to
+	        registry.addEndpoint("/ws-notifications")
+	        .setAllowedOriginPatterns("http://127.0.0.1:*", "http://localhost:*")
+	        .withSockJS();
+	    }   
+	}

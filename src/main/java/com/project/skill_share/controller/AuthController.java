@@ -1,6 +1,7 @@
 package com.project.skill_share.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,8 @@ import com.project.skill_share.services.AuthService;
 
 @RestController
 @RequestMapping("/api")
+
+
 public class AuthController {
 
     private final AuthService authService;

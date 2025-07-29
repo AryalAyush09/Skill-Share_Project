@@ -3,6 +3,8 @@ package com.project.skill_share.entities;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.project.skill_share.enums.MatchStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,29 +12,36 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "notification")
 public class Notification {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column(nullable = false)
-	private Long userId;
-	
-	@Column(nullable = false)
-	private String message;
-	
-	@Column(nullable = false)
-	private Long senderId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	boolean isRead = false;
-	
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private Long userId; // Receiver ID
 
+    @Column(nullable = false)
+    private String message;
+
+    @Column(nullable = false)
+    private Long senderId;
+    
+	@Column(nullable = false)
+    private boolean seen = false;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MatchStatus status;
+    
+ 
 	public Long getId() {
 		return id;
 	}
@@ -57,14 +66,6 @@ public class Notification {
 		this.message = message;
 	}
 
-	public boolean isRead() {
-		return isRead;
-	}
-
-	public void setRead(boolean isRead) {
-		this.isRead = isRead;
-	}
-
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -80,4 +81,21 @@ public class Notification {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+
+	public MatchStatus getStatus() {
+		return status;
+	}
+	
+	public boolean isSeen() {
+		return seen;
+	}
+
+	public void setSeen(boolean seen) {
+		this.seen = seen;
+	}
+
+	public void setStatus(MatchStatus status) {
+		this.status = status;
+	}
+	
 }

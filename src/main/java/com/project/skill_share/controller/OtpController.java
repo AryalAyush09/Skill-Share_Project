@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.project.skill_share.DTO.EmailDto;
 import com.project.skill_share.DTO.OtpVerifyDto;
+import com.project.skill_share.DTO.PasswordResetDto;
 import com.project.skill_share.enums.OtpPurpose;
 import com.project.skill_share.services.OtpService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
  @RestController
@@ -45,4 +48,12 @@ public class OtpController {
 	        return ResponseEntity.badRequest().body("Invalid OTP purpose: " + purpose);
 	    }
   }
+ 
+ @Operation(summary = "Password Reset after verified otp ")
+ @PostMapping("/reset/password")
+ public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetDto dto) {
+     return ResponseEntity.ok(
+         otpService.resetPassword(dto.getToken(), dto.getNewPassword()));
+ }
+
  }

@@ -1,6 +1,7 @@
 package com.project.skill_share.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +26,9 @@ public class SessionController {
     
     @Operation(summary = "Starting the session")
     @PostMapping("/start")
-    public ResponseEntity<ApiResponse<?>> startSession(@RequestBody StartSessionRequest dto) {
-       return ResponseEntity.ok(sessionService.startSession(dto.getUser1Id(),
+    public ResponseEntity<ApiResponse<?>> startSession(Authentication auth, @RequestBody StartSessionRequest dto) {
+      Long user1Id = Long.parseLong(auth.getName());
+    	return ResponseEntity.ok(sessionService.startSession(user1Id,
     		   dto.getUser2Id(), dto.getMatchId()));
     }
 

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.project.skill_share.DTO.AdminUserDto;
 import com.project.skill_share.DTO.ImageDto;
+import com.project.skill_share.DTO.SocialLinkDto;
 import com.project.skill_share.DTO.UserResponseDto;
 import com.project.skill_share.entities.User;
 import com.project.skill_share.enums.ImageType;
@@ -14,10 +15,13 @@ public class UserToDto {
   public static UserResponseDto toDto(User user) {
 	  UserResponseDto dto = new UserResponseDto();
 	  dto.setId(user.getId());
+	  dto.setFullName(user.getFullName());
 	  dto.setUserName(user.getUsername());
 	  dto.setEmail(user.getEmail());
+	  dto.setRating(user.getAverageRating() != null ? user.getAverageRating() : 0.0);
+
 	  dto.setContactNumber(user.getContactNumber());
-	  
+	
 	  dto.setCvUrl(user.getUserCV() != null ? user.getUserCV().getCvUrl() : null);
 	  
 	  List<ImageDto> images = user.getImages().stream().map(image -> {
@@ -32,6 +36,15 @@ public class UserToDto {
 	  
 	  dto.setImages(images);
 	  
+	    if (user.getSocialLinks() != null) {
+	        List<SocialLinkDto> linkDtos = user.getSocialLinks().stream().map(link -> {
+	            SocialLinkDto linkDto = new SocialLinkDto();
+	            linkDto.setPlatform(link.getPlatform());
+	            linkDto.setUrl(link.getUrl());
+	            return linkDto;
+	        }).toList();
+	        dto.setSocialLinks(linkDtos);
+	    }
 	  return dto;
   }
   

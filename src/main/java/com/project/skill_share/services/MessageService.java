@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.project.skill_share.DTO.ChatMessageCreateDto;
 import com.project.skill_share.DTO.ChatMessageDto;
 import com.project.skill_share.DTO.ChatResponseDto;
 import com.project.skill_share.DTO.MatchedUserDto;
@@ -29,12 +30,10 @@ public class MessageService {
   
 	private final MessageBoxRepository messageRepo;
 	private final UserRepository userRepo;
-	private final SimpMessagingTemplate messagingTemplate;
 	
 	public MessageService (MessageBoxRepository messageRepo, UserRepository userRepo, SimpMessagingTemplate messagingTemplate ) {
 		this.messageRepo = messageRepo;
 		this.userRepo = userRepo;
-		this.messagingTemplate = messagingTemplate;
 	}
 	
 	public ApiResponse<?> getChatBetweenUsers(Long senderId, Long viewerId, int page, int size){
@@ -73,19 +72,42 @@ public class MessageService {
 	}
 	
 	@Transactional
-	public void markMessagesAsSeen(Long senderId, Long receiverId) {
-	    messageRepo.markMessagesAsSeen(senderId, receiverId);
+	public void markMessagesSeen(Long currentUserId, Long senderId) {
+	    List<MessageBox> unseenMessages = messageRepo
+	    		.findUnseenMessages(senderId, currentUserId); // sender to current
+	    for (MessageBox msg : unseenMessages) {
+	        msg.setSeen(true);
+	    }
+	    messageRepo.saveAll(unseenMessages);
 	}
 	
 	@Transactional
-	public ChatMessageDto saveMessage(ChatMessageDto dto) {
-	    MessageBox entity = MessageMapper.toEntity(dto);
-	    messageRepo.save(entity);
+	public ChatMessageDto sendMessage(Long senderId, ChatMessageCreateDto dto) {
+	    System.out.println("MessageService: senderId=" + senderId + ", receiverId=" + dto.getReceiverId() +
+	                       ", content=" + dto.getContent());
 
-	    ChatMessageDto messageDto = MessageMapper.toDto(entity);
+	    if (dto.getReceiverId() == null || dto.getContent() == null) {
+	        throw new IllegalArgumentException("ReceiverId or content must not be null");
+	    }
 
-	    messagingTemplate.convertAndSend("/topic/messages/" + entity.getReceiverId(), messageDto);
+	    // Create sender and receiver user reference
+	    User sender = new User();
+	    sender.setId(senderId);
 
-	    return messageDto;
+	    User receiver = new User();
+	    receiver.setId(dto.getReceiverId());
+
+	    // Create new MessageBox entity
+	    MessageBox entity = new MessageBox();
+	    entity.setSender(sender);
+	    entity.setReceiver(receiver);
+	    entity.setContent(dto.getContent());
+	    entity.setMsgType(dto.getMsgType()); 
+	    entity.setSeen(false);
+
+	    // Save to database
+	    MessageBox saved = messageRepo.save(entity);
+	    
+	    return MessageMapper.toDto(saved); 
 	}
 }

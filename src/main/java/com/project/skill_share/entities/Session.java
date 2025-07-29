@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import com.project.skill_share.enums.MatchStatus;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,7 +36,9 @@ public class Session {
   
   private LocalDateTime endedAt;
   
+  @Enumerated(EnumType.STRING)
   private MatchStatus type;
+
   
   private Long durationInMinutes;
 

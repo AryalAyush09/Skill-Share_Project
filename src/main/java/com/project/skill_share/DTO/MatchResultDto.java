@@ -7,6 +7,7 @@ public class MatchResultDto {
   private Long userId;
   private String userName;
   private int matchingScore;
+  private double rating;
   private String profileImageUrl;
   private Set<MatchSkillDto> canTeach;
   private Set<MatchSkillDto> canLearn;
@@ -47,6 +48,12 @@ public Set<MatchSkillDto> getCanLearn() {
 }
 public void setCanLearn(Set<MatchSkillDto> canLearn) {
 	this.canLearn = canLearn;
+}
+public double getRating() {
+	return rating;
+}
+public void setRating(double rating) {
+	this.rating = rating;
 }
 
 }

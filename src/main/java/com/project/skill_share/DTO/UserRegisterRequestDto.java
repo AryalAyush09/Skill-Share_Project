@@ -2,6 +2,7 @@ package com.project.skill_share.DTO;
 
 public class UserRegisterRequestDto {
 	
+	    private String fullName;
 	    private String username;
 	    private String email;
 	    private String password;
@@ -35,6 +36,13 @@ public class UserRegisterRequestDto {
 	    public void setContactNumber(String contactNumber) { 
 	    	this.contactNumber = contactNumber; 
 	    	}
+		public String getFullName() {
+			return fullName;
+		}
+		public void setFullName(String fullName) {
+			this.fullName = fullName;
+		}
+	    
 	}
 
 

@@ -26,6 +26,7 @@ public class AdminImportService implements CommandLineRunner{
 		  User admin = new User();
 		  admin.setUsername("admin");
 		  admin.setEmail(adminEmail);
+		  admin.setFullName("Admin");
 		  admin.setPassword(passEnco.encode("@Dmin123"));
 		  admin.setContactNumber("9862907680");
 		  admin.setRoles(Role.ADMIN); 
